@@ -122,30 +122,10 @@ void usage(char* progname) {
 int main(int argc, char** argv) {
   std::cout << "Histogram calculator v" << MAJOR_VERSION << "." << MINOR_VERSION << std::endl;
 
-  std::string input_file_name, parameter_file_name, output_name;
+  std::string input_file_name, parameter_file_name, output_file_name;
   bool twod = false;
 
-  if (argc > 2) { /* Parse arguments, if there are arguments supplied */
-    for (int i = 1; i < argc; i++) {
-      if ((argv[i][0] == '-') || (argv[i][0] == '/')) {       // switches or options...
-        switch (tolower(argv[i][1])) {
-        case 'i':
-          input_file_name = argv[++i];
-          break;
-        case 'p':
-          parameter_file_name = argv[++i];
-          break;
-        default:    // no match...
-          std::cout << "ERROR: Flag \"" << argv[i] << "\" not recognized. Quitting..." << std::endl;
-          usage(argv[0]);
-        }
-      }
-      else {
-        std::cout << "ERROR: Flag \"" << argv[i] << "\" not recognized. Quitting..." << std::endl;
-        usage(argv[0]);
-      }
-    }
-  }
+  if (argc == 2) parameter_file_name = argv[1];
   else {
     std::cout << "ERROR: No flags specified. Read usage and relaunch properly." << std::endl;
     usage(argv[0]);
@@ -176,37 +156,36 @@ int main(int argc, char** argv) {
 
   jsoncons::json parameters = jsoncons::json::parse_file(parameter_file_name);
 
-  input_file.open(input_file_name.c_str());
-  if (!input_file.is_open()) {
-    std::cout << "FAILED: Input file " << input_file_name << " could not be opened. Quitting..." << std::endl;
-    exit(222);
-  }
-  else { std::cout << "SUCCESS: file " << input_file_name << " opened!\n"; }
-  std::vector<std::vector<double>> input_data;
-  size_t nrows, ncols;
-  parse_file(input_file, input_data, nrows, ncols);
-  input_file.close();
-
-  output_file.open(output_name.c_str());
-  if (!output_file.is_open()) {
-    std::cout << "FAILED: Output file " << output_name << " could not be opened. Quitting..." << std::endl;
-    exit(333);
-  }
-  else { std::cout << "SUCCESS: file " << output_name << " opened!" << std::endl; }
-
   size_t col_acc_x, col_acc_y, nbin_x, nbin_y;
   double min_acc_x = std::numeric_limits<double>::max(), max_acc_x = std::numeric_limits<double>::lowest(), min_acc_y = std::numeric_limits<double>::max(), max_acc_y = std::numeric_limits<double>::lowest();
   double min_acc = std::numeric_limits<double>::max(), max_acc = std::numeric_limits<double>::lowest();
   bool enable_find_minmax;
   bool enable_2D;
   
+  input_file_name = parameters.has_member("input_file_name") ? parameters["input_file_name"].as<std::string>() : "acc.txt";
+  input_file.open(input_file_name.c_str());
+  if (!input_file.is_open()) {
+    std::cout << "FAILED: Input file " << input_file_name << " could not be opened. Quitting..." << std::endl;
+    exit(222);
+  }
+  else { std::cout << "SUCCESS: file " << input_file_name << " opened!\n"; }
+
+  output_file_name = parameters.has_member("output_file_name") ? parameters["output_file_name"].as<std::string>() : "acc_bin.txt";
+  output_file.open(output_file_name.c_str());
+  if (!output_file.is_open()) {
+    std::cout << "FAILED: Output file " << output_file_name << " could not be opened. Quitting..." << std::endl;
+    exit(333);
+  }
+  else { std::cout << "SUCCESS: file " << output_file_name << " opened!" << std::endl; }
+
+
   enable_find_minmax = parameters.has_member("enable_find_minmax") ? parameters["enable_find_minmax"].as<bool>() : true;
   enable_2D = parameters.has_member("enable_2D") ? parameters["enable_2D"].as<bool>() : true;
 
-  col_acc_x = parameters.has_member("col_acc_x") ? parameters["col_acc_x"].as<size_t>() - 1 : 0;
-  col_acc_y = parameters.has_member("col_acc_y") ? parameters["col_acc_y"].as<size_t>() - 1 : 1;
-  col_acc_x = (col_acc_x >= 0 ? col_acc_x : 0);
-  col_acc_y = (col_acc_y >= 0 ? col_acc_y : 0);
+  col_acc_x = parameters.has_member("col_acc_x") ? parameters["col_acc_x"].as<size_t>() - 1 : 1;
+  col_acc_y = parameters.has_member("col_acc_y") ? parameters["col_acc_y"].as<size_t>() - 1 : 2;
+  col_acc_x = (col_acc_x >= 0 ? col_acc_x : 1);
+  col_acc_y = (col_acc_y >= 0 ? col_acc_y : 2);
 
   nbin_x = parameters.has_member("nbin_x") ? parameters["nbin_x"].as<size_t>() : 100;
   nbin_y = parameters.has_member("nbin_y") ? parameters["nbin_y"].as<size_t>() : 100;
@@ -236,6 +215,13 @@ int main(int argc, char** argv) {
     min_acc = max_acc;
     max_acc = temp;
   }
+
+
+  std::vector<std::vector<double>> input_data;
+  size_t nrows, ncols;
+  parse_file(input_file, input_data, nrows, ncols);
+  input_file.close();
+
 
 
   if (enable_2D) {
