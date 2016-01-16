@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 0
-#define MINOR_VERSION 1
+#define MINOR_VERSION 2
 
 
 void bin_data_2D(std::vector<std::vector <double>> &input_data, size_t size_row, size_t size_col, size_t which_x, size_t which_y, double min_x, double max_x, double min_y, double max_y, std::vector<std::vector <size_t>> &binned_data, size_t nbin_x, size_t nbin_y)
@@ -76,19 +76,41 @@ void parse_file(std::ifstream& input_file, std::vector<std::vector <double>> &in
   ncols = input_data.front().size();
 }
 
-void find_minmax_1D(std::vector<std::vector <double>> &input_data, size_t col_x, double &min_x, double &max_x) {
+void find_minmax_1D(std::vector<std::vector <double>> &input_data, size_t col_x, double &min_x, bool b_min_x, double &max_x, bool b_max_x) {
   for (auto i : input_data) {
-    min_x = (i[col_x] < min_x ? i[col_x] : min_x);
-    max_x = (i[col_x] > max_x ? i[col_x] : max_x);
+    if (!b_min_x) min_x = (i[col_x] < min_x ? i[col_x] : min_x);
+    if (!b_max_x) max_x = (i[col_x] > max_x ? i[col_x] : max_x);
+  }
+  if (min_x > max_x) {
+    double temp = min_x;
+    min_x = max_x;
+    max_x = temp;
   }
 }
 
-void find_minmax_2D(std::vector<std::vector <double>> &input_data, size_t col_x, double &min_x, double &max_x, size_t col_y, double &min_y, double &max_y, double &min_tot, double &max_tot) {
+void find_minmax_2D(std::vector<std::vector <double>> &input_data, size_t col_x, double &min_x, bool b_min_x, double &max_x, bool b_max_x, size_t col_y, double &min_y, bool b_min_y, double &max_y, bool b_max_y, double &min_tot, bool b_min_tot, double &max_tot, bool b_max_tot) {
   for (auto i : input_data) {
-    min_x = (i[col_x] < min_x ? i[col_x] : min_x);
-    max_x = (i[col_x] > max_x ? i[col_x] : max_x);
-    min_y = (i[col_y] > min_y ? i[col_y] : min_y);
-    max_y = (i[col_y] > max_y ? i[col_y] : max_y);
+    if (!b_min_x)   min_x = (i[col_x] < min_x ? i[col_x] : min_x);
+    if (!b_max_x)   max_x = (i[col_x] > max_x ? i[col_x] : max_x);
+    if (!b_min_y)   min_y = (i[col_y] < min_y ? i[col_y] : min_y);
+    if (!b_max_y)   max_y = (i[col_y] > max_y ? i[col_y] : max_y);
+    if (!b_min_tot) min_tot = (sqrt(i[col_x] * i[col_x] + i[col_y] * i[col_y]) < min_tot ? sqrt(i[col_x] * i[col_x] + i[col_y] * i[col_y]) : min_tot);
+    if (!b_max_tot) max_tot = (sqrt(i[col_x] * i[col_x] + i[col_y] * i[col_y]) > max_tot ? sqrt(i[col_x] * i[col_x] + i[col_y] * i[col_y]) : max_tot);
+  }
+  if (min_x > max_x) {
+    double temp = min_x;
+    min_x = max_x;
+    max_x = temp;
+  }
+  if (min_y > max_y) {
+    double temp = min_y;
+    min_y = max_y;
+    max_y = temp;
+  }
+  if (min_tot > max_tot) {
+    double temp = min_tot;
+    min_tot = max_tot;
+    max_tot = temp;
   }
 }
 
@@ -105,7 +127,7 @@ void print_histo_2D(std::ofstream &output_file, std::vector<std::vector <size_t>
   min_y -= size_y;
   for (auto i : binned_data) {
     for (auto j : i) {
-      output_file << min_x << "\t" << min_y <<  "\t" << j << std::endl;
+      output_file << min_x << "\t" << min_y << "\t" << j << std::endl;
       min_y += size_y;
     }
     min_x += size_x;
@@ -157,11 +179,10 @@ int main(int argc, char** argv) {
   jsoncons::json parameters = jsoncons::json::parse_file(parameter_file_name);
 
   size_t col_acc_x, col_acc_y, nbin_x, nbin_y;
-  double min_acc_x = std::numeric_limits<double>::max(), max_acc_x = std::numeric_limits<double>::lowest(), min_acc_y = std::numeric_limits<double>::max(), max_acc_y = std::numeric_limits<double>::lowest();
-  double min_acc = std::numeric_limits<double>::max(), max_acc = std::numeric_limits<double>::lowest();
-  bool enable_find_minmax;
+  double min_acc_x = std::numeric_limits<double>::max(), max_acc_x = std::numeric_limits<double>::lowest(), min_acc_y = std::numeric_limits<double>::max(), max_acc_y = std::numeric_limits<double>::lowest(), min_acc = std::numeric_limits<double>::max(), max_acc = std::numeric_limits<double>::lowest();
+  bool b_min_acc_x = false, b_max_acc_x = false, b_min_acc_y = false, b_max_acc_y = false, b_min_acc = false, b_max_acc = false;
   bool enable_2D;
-  
+
   input_file_name = parameters.has_member("input_file_name") ? parameters["input_file_name"].as<std::string>() : "acc.txt";
   input_file.open(input_file_name.c_str());
   if (!input_file.is_open()) {
@@ -178,8 +199,6 @@ int main(int argc, char** argv) {
   }
   else { std::cout << "SUCCESS: file " << output_file_name << " opened!" << std::endl; }
 
-
-  enable_find_minmax = parameters.has_member("enable_find_minmax") ? parameters["enable_find_minmax"].as<bool>() : true;
   enable_2D = parameters.has_member("enable_2D") ? parameters["enable_2D"].as<bool>() : true;
 
   col_acc_x = parameters.has_member("col_acc_x") ? parameters["col_acc_x"].as<size_t>() - 1 : 1;
@@ -192,30 +211,41 @@ int main(int argc, char** argv) {
   nbin_x = (nbin_x > 0 ? nbin_x : 100);
   nbin_y = (nbin_y > 0 ? nbin_y : 100);
 
-  min_acc_x = parameters.has_member("min_acc_x") ? parameters["min_acc_x"].as<size_t>() : std::numeric_limits<double>::max();
-  max_acc_x = parameters.has_member("max_acc_x") ? parameters["max_acc_x"].as<size_t>() : std::numeric_limits<double>::lowest();
-  if (min_acc_x > max_acc_x) {
-    double temp = min_acc_x;
-    min_acc_x = max_acc_x;
-    max_acc_x = temp;
+  if (parameters.has_member("min_acc_x")) {
+    min_acc_x = parameters["min_acc_x"].as<double>();
+    b_min_acc_x = true;
   }
+  else min_acc_x = std::numeric_limits<double>::max();
 
-  min_acc_y = parameters.has_member("min_acc_y") ? parameters["min_acc_y"].as<size_t>() : std::numeric_limits<double>::max();
-  max_acc_y = parameters.has_member("max_acc_y") ? parameters["max_acc_y"].as<size_t>() : std::numeric_limits<double>::lowest();
-  if (min_acc_y > max_acc_y) {
-    double temp = min_acc_y;
-    min_acc_y = max_acc_y;
-    max_acc_y = temp;
+  if (parameters.has_member("max_acc_x")) {
+    max_acc_x = parameters["max_acc_x"].as<double>();
+    b_max_acc_x = true;
   }
+  else max_acc_x = std::numeric_limits<double>::lowest();
 
-  min_acc = parameters.has_member("min_acc") ? parameters["min_acc"].as<size_t>() : std::numeric_limits<double>::max();
-  max_acc = parameters.has_member("max_acc") ? parameters["max_acc"].as<size_t>() : std::numeric_limits<double>::lowest();
-  if (min_acc > max_acc) {
-    double temp = min_acc;
-    min_acc = max_acc;
-    max_acc = temp;
+  if (parameters.has_member("min_acc_y")) {
+    min_acc_y = parameters["min_acc_y"].as<double>();
+    b_min_acc_y = true;
   }
+  else min_acc_y = std::numeric_limits<double>::max();
 
+  if (parameters.has_member("max_acc_y")) {
+    max_acc_y = parameters["max_acc_y"].as<double>();
+    b_max_acc_y = true;
+  }
+  else max_acc_y = std::numeric_limits<double>::lowest();
+
+  if (parameters.has_member("min_acc")) {
+    min_acc = parameters["min_acc"].as<double>();
+    b_min_acc = true;
+  }
+  else min_acc = std::numeric_limits<double>::max();
+
+  if (parameters.has_member("max_acc")) {
+    max_acc = parameters["max_acc"].as<double>();
+    b_max_acc = true;
+  }
+  else max_acc = std::numeric_limits<double>::lowest();
 
   std::vector<std::vector<double>> input_data;
   size_t nrows, ncols;
@@ -225,17 +255,19 @@ int main(int argc, char** argv) {
 
 
   if (enable_2D) {
-    if (enable_find_minmax) find_minmax_2D(input_data, col_acc_x, min_acc_x, max_acc_x, col_acc_y, min_acc_y, max_acc_y, min_acc, max_acc);
+    find_minmax_2D(input_data, col_acc_x, min_acc_x, b_min_acc_x, max_acc_x, b_max_acc_x, col_acc_y, min_acc_y, b_min_acc_y, max_acc_y, b_max_acc_y, min_acc, b_min_acc, max_acc, b_max_acc);
     std::vector<std::vector<size_t>> binned_data(nbin_y, std::vector<size_t>(nbin_x));
     bin_data_2D(input_data, nrows, ncols, col_acc_x, col_acc_y, min_acc_x, max_acc_x, min_acc_y, max_acc_y, binned_data, nbin_x, nbin_y);
     print_histo_2D(output_file, binned_data, min_acc_x, min_acc_y, (max_acc_x - min_acc_x) / (nbin_x - 2), (max_acc_y - min_acc_y) / (nbin_y - 2));
   }
   else {
-    if (enable_find_minmax) find_minmax_1D(input_data, col_acc_x, min_acc, max_acc);
+    find_minmax_1D(input_data, col_acc_x, min_acc, b_min_acc, max_acc, b_max_acc);
     std::vector<size_t> binned_data(nbin_x);
     bin_data_1D(input_data, nrows, ncols, col_acc_x, min_acc_x, max_acc_x, binned_data, nbin_x);
-    print_histo_1D(output_file, binned_data, min_acc_x, (max_acc_x-min_acc_x)/(nbin_x-2));
+    print_histo_1D(output_file, binned_data, min_acc_x, (max_acc_x - min_acc_x) / (nbin_x - 2));
   }
+
+  output_file.close();
 
   return 0;
 
