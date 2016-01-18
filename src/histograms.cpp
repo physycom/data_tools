@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 0
+#define MINOR_VERSION 1
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
   output_file << "#!/gnuplot\n";
@@ -409,7 +409,6 @@ int main(int argc, char** argv) {
   else max_acc = std::numeric_limits<double>::lowest();
 
   find_minmax(input_data, col_acc_x, min_acc_x, b_min_acc_x, max_acc_x, b_max_acc_x, col_acc_y, min_acc_y, b_min_acc_y, max_acc_y, b_max_acc_y, min_acc, b_min_acc, max_acc, b_max_acc);
-  std::cout << min_acc_x << "\t" << max_acc_x << "\t" << min_acc_y << "\t" << max_acc_y << "\t" << min_acc << "\t" << max_acc << "\n";
 
   /* 2D analysis */
   std::vector<std::vector<size_t>> binned_cart_data(nbin_y, std::vector<size_t>(nbin_x));
