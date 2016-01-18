@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "jsoncons/json.hpp"
 
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 3
+#define MAJOR_VERSION 1
+#define MINOR_VERSION 0
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
   output_file << "#!/gnuplot\n";
@@ -41,7 +41,7 @@ void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file
   output_file << "\n";
 }
 
-void prepare_gnuplot_script_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col) {
+void prepare_gnuplot_script_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col, double xmin, double xmax, double ymin, double ymax) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
@@ -49,7 +49,10 @@ void prepare_gnuplot_script_2D(std::ofstream &output_file, std::string data_file
   output_file << "set output FILE_OUT\n";
   output_file << "set xlabel 'a_x (m/s^2)' \n";
   output_file << "set ylabel 'a_y (m/s^2)' \n";
+  output_file << "set xrange[" << xmin << ':' << xmax << "] \n";
+  output_file << "set yrange[" << ymin << ':' << ymax << "] \n";
   output_file << "set palette rgbformulae 22,13,10\n";
+  output_file << "set logscale cb\n";
   output_file << "plot FILE_IN u ($" << min_bin_x_col << "+$" << max_bin_x_col << ")/2:($" << min_bin_y_col << "+$" << max_bin_y_col << ")/2:" << data_col << " w image notitle\n";
   output_file << "\n";
 }
@@ -143,7 +146,7 @@ void find_minmax_2D(std::vector<std::vector <double>> &input_data, size_t col_x,
 void print_histo_1D(std::ofstream &output_file, std::vector<size_t> &binned_data, double min_x, double size_x) {
   min_x -= size_x;
   for (auto i : binned_data) {
-    output_file << min_x << "\t" << i << std::endl;
+    output_file << min_x << "\t" << min_x + size_x << "\t" << i << std::endl;
     min_x += size_x;
   }
 }
@@ -154,7 +157,7 @@ void print_histo_2D(std::ofstream &output_file, std::vector<std::vector <size_t>
   double min_y_stored = min_y;
   for (auto i : binned_data) {
     for (auto j : i) {
-      output_file << min_x << "\t" << min_y << "\t" << j << std::endl;
+      output_file << min_x << "\t" << min_x + size_x << "\t" << min_y << "\t" << min_y + size_y << "\t" << j << std::endl;
       min_y += size_y;
     }
     min_y = min_y_stored;
@@ -294,14 +297,14 @@ int main(int argc, char** argv) {
     std::vector<std::vector<size_t>> binned_data(nbin_y, std::vector<size_t>(nbin_x));
     bin_data_2D(input_data, col_acc_x, col_acc_y, min_acc_x, max_acc_x, min_acc_y, max_acc_y, binned_data);
     print_histo_2D(output_file, binned_data, min_acc_x, min_acc_y, (max_acc_x - min_acc_x) / (nbin_x - 2), (max_acc_y - min_acc_y) / (nbin_y - 2));
-    prepare_gnuplot_script_2D(output_gnuplot_file, output_file_name, output_image_file_name, 1280, 720, 25, 1, 2, 3, 4, 5);
+    prepare_gnuplot_script_2D(output_gnuplot_file, output_file_name, output_image_file_name, 1280, 720, 25, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y);
   }
   else {
     find_minmax_1D(input_data, col_acc_x, min_acc, b_min_acc, max_acc, b_max_acc);
     std::vector<size_t> binned_data(nbin_x);
     bin_data_1D(input_data, col_acc_x, min_acc, max_acc, binned_data);
     print_histo_1D(output_file, binned_data, min_acc, (max_acc - min_acc) / (nbin_x - 2));
-    prepare_gnuplot_script_1D(output_gnuplot_file, output_file_name, output_image_file_name, 1280, 720, 25, 1, 2, 3, "acc_x");
+    prepare_gnuplot_script_1D(output_gnuplot_file, output_file_name, output_image_file_name, 1280, 720, 25, 1, 2, 3, "a_x");
   }
 
   std::cout << "Done; please run: \n$gnuplot " << output_gnuplot_file_name << std::endl;
