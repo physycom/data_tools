@@ -229,10 +229,10 @@ int main(int argc, char** argv) {
     usage(argv[0]);
   }
 
-  std::string input_file_name, output_file_histox_name, output_file_histoy_name, output_file_cart_name, output_file_polar_name, output_gnuplot_file_cart_name, output_gnuplot_file_polar_name,
-    output_gnuplot_file_histox_name, output_gnuplot_file_histoy_name, output_image_file_cart_name, output_image_file_polar_name, output_image_file_histox_name, output_image_file_histoy_name;
+  std::string input_file_name, output_file_histox_name, output_file_histoy_name, output_file_cart_name, output_file_polar_name, output_gnuplot_file_cart_name, output_gnuplot_file_polar_name, output_gnuplot_file_polar_name_exp,
+    output_gnuplot_file_histox_name, output_gnuplot_file_histoy_name, output_image_file_cart_name, output_image_file_polar_name, output_image_file_polar_name_exp, output_image_file_histox_name, output_image_file_histoy_name;
 
-  std::ofstream output_file_histox, output_file_histoy, output_file_cart, output_file_polar, output_gnuplot_file_cart, output_gnuplot_file_polar, output_gnuplot_file_histox, output_gnuplot_file_histoy;
+  std::ofstream output_file_histox, output_file_histoy, output_file_cart, output_file_polar, output_gnuplot_file_cart, output_gnuplot_file_polar, output_gnuplot_file_polar_exp, output_gnuplot_file_histox, output_gnuplot_file_histoy;
   std::ifstream input_file;
   std::ifstream parameter_file;
 
@@ -345,6 +345,16 @@ int main(int argc, char** argv) {
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_polar_name << " opened!" << std::endl; }
   output_image_file_polar_name = parameters.has_member("output_image_file_polar") ? parameters["output_image_file_polar"].as<std::string>() : "polar_bin.png";
 
+  // 2D polar experimental
+  output_gnuplot_file_polar_name_exp = parameters.has_member("output_gnuplot_file_polar_exp") ? parameters["output_gnuplot_file_polar_exp"].as<std::string>() : "polar_bin_exp.plt";
+  output_gnuplot_file_polar_exp.open(output_gnuplot_file_polar_name_exp.c_str());
+  if (!output_gnuplot_file_polar_exp.is_open()) {
+    std::cout << "FAILED: Output file " << output_gnuplot_file_polar_name_exp << " could not be opened. Quitting..." << std::endl;
+    exit(333);
+  }
+  else { std::cout << "SUCCESS: file " << output_gnuplot_file_polar_name_exp << " opened!" << std::endl; }
+  output_image_file_polar_name_exp = parameters.has_member("output_image_file_polar_exp") ? parameters["output_image_file_polar_exp"].as<std::string>() : "polar_bin_exp.png";
+
 
 
   col_acc_x = parameters.has_member("col_acc_x") ? parameters["col_acc_x"].as<size_t>() - 1 : 1;
@@ -410,7 +420,7 @@ int main(int argc, char** argv) {
   print_histo_2D(output_file_polar, binned_polar_data, 0, min_acc, 360.0 / double(nbin_angle - 2), (max_acc - min_acc) / (nbin_magn - 2));
   prepare_gnuplot_script_cart_2D(output_gnuplot_file_cart, output_file_cart_name, output_image_file_cart_name, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y, true);
   prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, 1280, 960, 25, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false);
-  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc, max_acc);
+  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc, max_acc);
 
   /* 1D analysis */
   std::vector<size_t> binned_histox_data(nbin_x);
