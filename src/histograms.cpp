@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 3
+#define MINOR_VERSION 4
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
   output_file << "#!/gnuplot\n";
@@ -52,7 +52,7 @@ void prepare_gnuplot_script_double_1D(std::ofstream &output_file, std::string da
   output_file << "set output FILE_OUT\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set ylabel 'dN/da'\n";
-  output_file << "plot FILE_IN_1 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key_1 << "' \\\n";
+  output_file << "plot FILE_IN_1 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key_1 << "', \\\n";
   output_file << "FILE_IN_2 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'blue' lw 3 t '" << data_key_2 << "'\n";
   output_file << "\n";
 }
