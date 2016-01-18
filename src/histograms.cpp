@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 1
+#define MINOR_VERSION 3
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
   output_file << "#!/gnuplot\n";
@@ -43,6 +43,20 @@ void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file
   output_file << "\n";
 }
 
+void prepare_gnuplot_script_double_1D(std::ofstream &output_file, std::string data_file_1, std::string data_file_2, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key_1, std::string data_key_2) {
+  output_file << "#!/gnuplot\n";
+  output_file << "FILE_IN_1='" << data_file_1 << "'\n";
+  output_file << "FILE_IN_2='" << data_file_2 << "'\n";
+  output_file << "FILE_OUT='" << plot_file << "'\n";
+  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
+  output_file << "set output FILE_OUT\n";
+  output_file << "set xlabel 'a (g)' \n";
+  output_file << "set ylabel 'dN/da'\n";
+  output_file << "plot FILE_IN_1 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key_1 << "' \\\n";
+  output_file << "FILE_IN_2 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'blue' lw 3 t '" << data_key_2 << "'\n";
+  output_file << "\n";
+}
+
 void prepare_gnuplot_script_cart_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col, double xmin, double xmax, double ymin, double ymax, bool enable_ratio) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
@@ -53,7 +67,7 @@ void prepare_gnuplot_script_cart_2D(std::ofstream &output_file, std::string data
   output_file << "set ylabel 'a_y (g)' \n";
   output_file << "set xrange[" << xmin << ':' << xmax << "] \n";
   output_file << "set yrange[" << ymin << ':' << ymax << "] \n";
-  if (enable_ratio) output_file << "set size ratio - 1 \n ";
+  if (enable_ratio) output_file << "set size ratio - 1 \n";
   output_file << "set palette rgbformulae 22,13,10\n";
   output_file << "set logscale cb\n";
   output_file << "plot FILE_IN u ($" << min_bin_x_col << "+$" << max_bin_x_col << ")/2:($" << min_bin_y_col << "+$" << max_bin_y_col << ")/2:" << data_col << " w image notitle\n";
@@ -229,10 +243,10 @@ int main(int argc, char** argv) {
     usage(argv[0]);
   }
 
-  std::string input_file_name, output_file_histox_name, output_file_histoy_name, output_file_cart_name, output_file_polar_name, output_gnuplot_file_cart_name, output_gnuplot_file_polar_name, output_gnuplot_file_polar_name_exp,
-    output_gnuplot_file_histox_name, output_gnuplot_file_histoy_name, output_image_file_cart_name, output_image_file_polar_name, output_image_file_polar_name_exp, output_image_file_histox_name, output_image_file_histoy_name;
+  std::string input_file_name, output_file_histox_name, output_file_histoy_name, output_file_cart_name, output_file_polar_name, output_gnuplot_file_cart_name, output_gnuplot_file_polar_name, output_gnuplot_file_polar_name_exp, output_gnuplot_file_histoxy_name,
+    output_gnuplot_file_histox_name, output_gnuplot_file_histoy_name, output_image_file_cart_name, output_image_file_polar_name, output_image_file_polar_name_exp, output_image_file_histox_name, output_image_file_histoy_name, output_image_file_histoxy_name;
 
-  std::ofstream output_file_histox, output_file_histoy, output_file_cart, output_file_polar, output_gnuplot_file_cart, output_gnuplot_file_polar, output_gnuplot_file_polar_exp, output_gnuplot_file_histox, output_gnuplot_file_histoy;
+  std::ofstream output_file_histox, output_file_histoy, output_file_cart, output_file_polar, output_gnuplot_file_cart, output_gnuplot_file_polar, output_gnuplot_file_polar_exp, output_gnuplot_file_histox, output_gnuplot_file_histoy, output_gnuplot_file_histoxy;
   std::ifstream input_file;
   std::ifstream parameter_file;
 
@@ -308,6 +322,16 @@ int main(int argc, char** argv) {
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_histoy_name << " opened!" << std::endl; }
   output_image_file_histoy_name = parameters.has_member("output_image_file_histoy") ? parameters["output_image_file_histoy"].as<std::string>() : "histoy_bin.png";
+
+  // 1D histo_xy
+  output_gnuplot_file_histoxy_name = parameters.has_member("output_gnuplot_file_histoxy") ? parameters["output_gnuplot_file_histoxy"].as<std::string>() : "histoxy_bin.plt";
+  output_gnuplot_file_histoxy.open(output_gnuplot_file_histoxy_name.c_str());
+  if (!output_gnuplot_file_histoxy.is_open()) {
+    std::cout << "FAILED: Output file " << output_gnuplot_file_histoxy_name << " could not be opened. Quitting..." << std::endl;
+    exit(333);
+  }
+  else { std::cout << "SUCCESS: file " << output_gnuplot_file_histoxy_name << " opened!" << std::endl; }
+  output_image_file_histoxy_name = parameters.has_member("output_image_file_histoxy") ? parameters["output_image_file_histoxy"].as<std::string>() : "histoxy_bin.png";
 
   // 2D cart
   output_file_cart_name = parameters.has_member("output_file_cart") ? parameters["output_file_cart"].as<std::string>() : "cart_bin.txt";
@@ -430,6 +454,7 @@ int main(int argc, char** argv) {
   print_histo_1D(output_file_histoy, binned_histoy_data, min_acc_y, (max_acc_y - min_acc_y) / (nbin_y - 2));
   prepare_gnuplot_script_1D(output_gnuplot_file_histox, output_file_histox_name, output_image_file_histox_name, 1280, 720, 25, 1, 2, 3, "a_x");
   prepare_gnuplot_script_1D(output_gnuplot_file_histoy, output_file_histoy_name, output_image_file_histoy_name, 1280, 720, 25, 1, 2, 3, "a_y");
+  prepare_gnuplot_script_double_1D(output_gnuplot_file_histoxy, output_file_histox_name, output_file_histoy_name, output_image_file_histoxy_name, 1280, 720, 25, 1, 2, 3, "a_x", "a_y");
 
 
   std::cout << "Done; please run: \n$for script in $(find . -name \"*.plt\") ; do gnuplot $script ; done\nin this folder to refresh png(s)" << std::endl;
