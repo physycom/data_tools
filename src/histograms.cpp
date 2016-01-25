@@ -152,6 +152,29 @@ void bin_data_1D(std::vector<std::vector <double>> &input_data, size_t which_x, 
   }
 }
 
+void filter_data(std::vector<std::vector <double>> &input_data, size_t which_column, double min_value, double max_value)
+{
+  for (size_t i = 0; i < input_data.size(); i++) {
+    if (input_data[i][which_column] < min_value || input_data[i][which_column] > max_value) {
+      input_data.erase(input_data.begin() + i);
+      i--;
+    }
+  }
+}
+
+void filter_data_modulus(std::vector<std::vector <double>> &input_data, size_t which_column_x, size_t which_column_y, size_t which_column_z, double min_value, double max_value)
+{
+  for (size_t i = 0; i < input_data.size(); i++) {
+    if (
+      sqrt(input_data[i][which_column_x] * input_data[i][which_column_x] + input_data[i][which_column_y] * input_data[i][which_column_y] + input_data[i][which_column_z] * input_data[i][which_column_z]) < min_value ||
+      sqrt(input_data[i][which_column_x] * input_data[i][which_column_x] + input_data[i][which_column_y] * input_data[i][which_column_y] + input_data[i][which_column_z] * input_data[i][which_column_z]) > max_value) {
+
+      input_data.erase(input_data.begin() + i);
+      i--;
+    }
+  }
+}
+
 void parse_file(std::ifstream& input_file, std::vector<std::vector <double>> &input_data)
 {
   std::string line;
@@ -270,8 +293,9 @@ int main(int argc, char** argv) {
 
   jsoncons::json parameters = jsoncons::json::parse_file(parameter_file_name);
 
-  size_t col_acc_x, col_acc_y, nbin_x, nbin_y, nbin_magn, nbin_angle;
+  size_t col_speed, col_acc_x, col_acc_y, col_acc_z, nbin_x, nbin_y, nbin_magn, nbin_angle;
   double min_acc_x = std::numeric_limits<double>::max(), max_acc_x = std::numeric_limits<double>::lowest(), min_acc_y = std::numeric_limits<double>::max(), max_acc_y = std::numeric_limits<double>::lowest(), min_acc = std::numeric_limits<double>::max(), max_acc = std::numeric_limits<double>::lowest();
+  double min_speed_filter = 0.0, max_speed_filter = std::numeric_limits<double>::max(), min_acc_filter = 0.0, max_acc_filter = std::numeric_limits<double>::max();
   bool b_min_acc_x = false, b_max_acc_x = false, b_min_acc_y = false, b_max_acc_y = false, b_min_acc = false, b_max_acc = false;
 
   /* Parse input file */
@@ -383,8 +407,12 @@ int main(int argc, char** argv) {
 
   col_acc_x = parameters.has_member("col_acc_x") ? parameters["col_acc_x"].as<size_t>() - 1 : 1;
   col_acc_y = parameters.has_member("col_acc_y") ? parameters["col_acc_y"].as<size_t>() - 1 : 2;
+  col_acc_z = parameters.has_member("col_acc_z") ? parameters["col_acc_z"].as<size_t>() - 1 : 3;
+  col_speed = parameters.has_member("col_speed") ? parameters["col_speed"].as<size_t>() - 1 : 4;
   col_acc_x = (col_acc_x >= 0 ? col_acc_x : 1);
   col_acc_y = (col_acc_y >= 0 ? col_acc_y : 2);
+  col_acc_z = (col_acc_z >= 0 ? col_acc_z : 3);
+  col_speed = (col_speed >= 0 ? col_speed : 4);
 
   nbin_x = parameters.has_member("nbin_x") ? parameters["nbin_x"].as<size_t>() : 100;
   nbin_y = parameters.has_member("nbin_y") ? parameters["nbin_y"].as<size_t>() : 100;
@@ -432,7 +460,15 @@ int main(int argc, char** argv) {
   }
   else max_acc = std::numeric_limits<double>::lowest();
 
+  min_acc_filter = parameters.has_member("min_acc_filter") ? parameters["min_acc_filter"].as<double>() : min_acc_filter;
+  max_acc_filter = parameters.has_member("max_acc_filter") ? parameters["max_acc_filter"].as<double>() : max_acc_filter;
+  min_speed_filter = parameters.has_member("min_speed_filter") ? parameters["min_speed_filter"].as<double>() : min_speed_filter;
+  max_speed_filter = parameters.has_member("max_speed_filter") ? parameters["max_speed_filter"].as<double>() : max_speed_filter;
+
   find_minmax(input_data, col_acc_x, min_acc_x, b_min_acc_x, max_acc_x, b_max_acc_x, col_acc_y, min_acc_y, b_min_acc_y, max_acc_y, b_max_acc_y, min_acc, b_min_acc, max_acc, b_max_acc);
+  
+  filter_data(input_data, col_speed, min_speed_filter, max_speed_filter);
+  filter_data_modulus(input_data, col_acc_x, col_acc_y, col_acc_z, min_acc_filter, max_acc_filter);
 
   /* 2D analysis */
   std::vector<std::vector<size_t>> binned_cart_data(nbin_y, std::vector<size_t>(nbin_x));
