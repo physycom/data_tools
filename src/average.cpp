@@ -37,13 +37,14 @@ void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file
   output_file << "FILE_OUT='" << plot_file << "'\n";
   output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
   output_file << "set output FILE_OUT\n";
+  output_file << "unset xtics\n";
   output_file << "plot FILE_IN u " << t << ":($" << x << "*$" << x << "+$" << y << "*$" << y << "+$" << z << "*$" << z << ") w lines lt 1 lc rgb 'blue' lw 3 t '" << data_key << "'\n";
   output_file << "\n";
 }
 
 void usage(char * progname) {
   std::cout << "Usage: " << progname << " period <period_seconds> file1 file2 ... fileN" << std::endl;
-  std::cout << "       Each file must have the timestamps on the first column and the last column will be ignored." << std::endl;
+  std::cout << "       Each file must have the timestamps on the first column." << std::endl;
   exit(-3);
 }
 
