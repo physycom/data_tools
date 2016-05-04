@@ -249,3 +249,4 @@ ui_*.h
 *.ubx
 *.iobj
 *.ipdb
+*.db
