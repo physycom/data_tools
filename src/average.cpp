@@ -29,22 +29,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 0
+#define MINOR_VERSION 1
 
-void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x, size_t y, size_t z, size_t t, std::string data_key) {
+void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x, size_t y, size_t z, size_t t, size_t q, std::string t_key, std::string q_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
   output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
   output_file << "set output FILE_OUT\n";
   output_file << "unset xtics\n";
-  output_file << "plot FILE_IN u " << t << ":($" << x << "*$" << x << "+$" << y << "*$" << y << "+$" << z << "*$" << z << ") w lines lt 1 lc rgb 'blue' lw 3 t '" << data_key << "'\n";
+  output_file << "plot FILE_IN u " << t << ":($" << x << "*$" << x << "+$" << y << "*$" << y << "+$" << z << "*$" << z << ") w lines lt 1 lc rgb 'blue' lw 3 t '" << t_key << "',\\" << std::endl;
+  output_file << "     FILE_IN u " << t << ":" << q << " w lines lt 1 lc rgb 'red' lw 3 t '" << q_key << "'\n";
   output_file << "\n";
 }
 
 void usage(char * progname) {
-  std::cout << "Usage: " << progname << " period <period_seconds> file1 file2 ... fileN" << std::endl;
-  std::cout << "       Each file must have the timestamps on the first column." << std::endl;
+  std::cout << "Usage: " << progname << " -period <time_interval_to_average[s]> file1 file2 ... fileN" << std::endl;
+  std::cout << "or     " << progname << " -samples <number_of_lines_to_average> file1 file2 ... fileN" << std::endl;
+  std::cout << "It is assumed that the first column represents timestamps. All the others will be averaged" << std::endl;
   exit(-3);
 }
 
@@ -55,10 +57,10 @@ int main(int argc, char ** argv) {
   double period;
   int samples;
   if (argc > 1) {
-    if ( std::string(argv[1]) == "period") {
+    if ( std::string(argv[1]) == "-period") {
       period = atof(argv[2]);
     }
-    else if (std::string(argv[1]) == "samples") {
+    else if (std::string(argv[1]) == "-samples") {
       samples = atoi(argv[2]);
     }
 
@@ -84,13 +86,14 @@ int main(int argc, char ** argv) {
     std::vector<double> values;
     std::vector< std::vector<double> > averaged_values;
     int col_num = 0, line_cnt = 0, period_cnt = 0;
-    double start_time = 0;
+    double start_time = -1.0;
     while (std::getline(file_in, line)) {
       boost::split(tokens, line, boost::is_any_of(" \t"), boost::token_compress_on);
+      if (tokens[0][0] == '#') continue;
       line_cnt++;
       period_cnt++;
 
-      if (start_time == 0) start_time = std::stod(tokens[0]);
+      if (start_time < 0.0) start_time = std::stod(tokens[0]);
 
       if (col_num == 0) {
         col_num = (int) tokens.size();
@@ -129,8 +132,11 @@ int main(int argc, char ** argv) {
     file_out.close();
 
     file_out.open(file.substr(0, file.size() - 4) + "_ave.plt");
-    prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, 3, 4, 5, 1, "averaged data");
+    prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, 3, 4, 5, 1, col_num-1, file.substr(0, file.size() - 4), file.substr(0, file.size() - 4)+"_sq");
   }
 
   return 0;
 }
+
+
+
