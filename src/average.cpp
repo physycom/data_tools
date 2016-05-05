@@ -155,7 +155,13 @@ int main(int argc, char ** argv) {
 
   std::cout << std::endl << "Averaging your files with period " << period << " s" << std::endl;
 
+
   for (auto file : input_files) {
+    // Steps:
+    // 1 - remove the GLOBAL average from each component of acc
+    // 2 - evaluate L = (ax -<ax>)^2 + (ay -<ay>)^2 + (az -<az>)^2
+    // 3 - average L over the user-defined period/samples
+    // 4 - rescale the averaged <L>
     std::vector< std::vector<std::string> > parsed_file = Parse_file(file, SEPARATORS, COMMENTS);
     std::vector< std::vector<double> > doubled_file = Convert_to_double_vector(parsed_file);
     double average_ax = Calculate_average(doubled_file, 2);
@@ -176,7 +182,7 @@ int main(int argc, char ** argv) {
       if (start_time < 0.0) start_time = first_time = line[0];
 
       if (col_num == 0) {
-        col_num = line.size() + 3; // 3 added column : squared average, number of rows used in the average (useful when requesting average per period) and relative timestamps
+        col_num = line.size() + 3;                          // 3 added column : squared average, number of rows used in the average (useful when requesting average per period), relative timestamps
         averaged_value.resize(col_num);
         for (size_t i = 0; i < col_num; i++) {
           averaged_value[i] = 0.0;
@@ -194,7 +200,7 @@ int main(int argc, char ** argv) {
         for (size_t i = 0; i < col_num - 2; i++) {
           averaged_value[i] /= period_cnt;
         }
-        //averaged_value[col_num - 3] *= (2.0 / forzante);
+        //averaged_value[col_num - 3] *= (2.0 / driving);
         averaged_value[col_num - 3] *= 2.0;
         averaged_value[col_num - 2] = (double)period_cnt;
         averaged_value[col_num - 1] = averaged_value[0] - first_time;
@@ -223,7 +229,7 @@ int main(int argc, char ** argv) {
       test_name = file.substr(0, file.size() - 13);
     
     file_out.open(plot_script_name);
-    //prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 1, "average of modulus", "t (s)", "2*osc^2/g_0 (g)", file.substr(0, file.size() - 13));
+    //prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 1, "average of magnitude", "t (s)", "2*osc^2/g_0 (g)", file.substr(0, file.size() - 13));
     prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 20, col_num, col_num - 2, col_num, col_num - 1, "average of magnitude", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", test_name);
     file_out.close();
   }
