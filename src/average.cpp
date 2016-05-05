@@ -29,22 +29,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 3
+#define MINOR_VERSION 4
 #define SEPARATORS       " \t"
 #define COMMENTS         "#"
 
 
-void prepare_gnuplot_script_1D_twoplots(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x, size_t y, size_t z, size_t t, size_t q, std::string t_key, std::string q_key, std::string x_key, std::string y_key, std::string title_key) {
+void prepare_gnuplot_script_1D_twoplots(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x1, size_t y1, size_t x2, size_t y2, std::string plot1_key, std::string plot2_key, std::string x1_key, std::string y1_key, std::string x2_key, std::string y2_key, std::string title_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
   output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
   output_file << "set output FILE_OUT\n";
   output_file << "set title '" << title_key << "'\n";
-  output_file << "set xlabel '" << x_key << "'\n";
-  output_file << "set ylabel '" << y_key << "'\n";
-  output_file << "plot FILE_IN u " << t << ":(sqrt($" << x << "*$" << x << "+$" << y << "*$" << y << "+$" << z << "*$" << z << ")) w lines lt 1 lc rgb 'blue' lw 3 t '" << t_key << "',\\" << std::endl;
-  output_file << "     FILE_IN u " << t << ":" << q << " w lines lt 1 lc rgb 'red' lw 3 t '" << q_key << "'\n";
+  output_file << "set xlabel '" << x1_key << "'\n";
+  output_file << "set ylabel '" << y1_key << "'\n";
+  output_file << "set x2label '" << x2_key << "'\n";
+  output_file << "set y2label '" << y2_key << "'\n";
+  output_file << "set ytics nomirror\n";
+  output_file << "set y2tics\n";
+  output_file << "plot FILE_IN u " << x1 << ":" << y1 << " w lines lt 1 lc rgb 'blue' lw 3 t '" << plot1_key << "' axes x1y1,\\" << std::endl;
+  output_file << "     FILE_IN u " << x2 << ":" << y2 << " w lines lt 1 lc rgb 'red' lw 3 t '" << plot2_key << "' axes x1y2\n";
   output_file << "\n";
 }
 
@@ -172,24 +176,27 @@ int main(int argc, char ** argv) {
       if (start_time < 0.0) start_time = first_time = line[0];
 
       if (col_num == 0) {
-        col_num = line.size() + 2; // the last column contains again the timestamp, but starting from zero for the first row
+        col_num = line.size() + 3; // squared average, number of rows used in the average (useful when requesting average per period) and timestamp, but starting from zero for the first row
         averaged_value.resize(col_num);
         for (size_t i = 0; i < col_num; i++) {
           averaged_value[i] = 0.0;
         }
       }
 
-      for (size_t i = 0; i < col_num - 2; i++) {
+      for (size_t i = 0; i < col_num - 3; i++) {
         averaged_value[i] += line[i];
       }
-      averaged_value[col_num - 2] += (line[2] - average_ax) * (line[2] - average_ax) + (line[3] - average_ay) * (line[3] - average_ay) + (line[4] - average_az) * (line[4] - average_az);
+      //averaged_value[col_num - 3] += (line[2] - average_ax) * (line[2] - average_ax) + (line[3] - average_ay) * (line[3] - average_ay) + (line[4] - average_az) * (line[4] - average_az);
+      averaged_value[col_num - 3] += (line[2] - average_ax) / forzante * (line[2] - average_ax) / forzante + (line[3] - average_ay) / forzante * (line[3] - average_ay) / forzante + (line[4] - average_az) / forzante * (line[4] - average_az) / forzante;
 
       if (line[0] - start_time > period) {
         start_time = line[0];
-        for (size_t i = 0; i < col_num - 1; i++) {
+        for (size_t i = 0; i < col_num - 2; i++) {
           averaged_value[i] /= period_cnt;
         }
-        averaged_value[col_num - 2] *= (2.0/forzante);
+        //averaged_value[col_num - 3] *= (2.0 / forzante);
+        averaged_value[col_num - 3] *= 2.0;
+        averaged_value[col_num - 2] = (double)period_cnt;
         averaged_value[col_num - 1] = averaged_value[0] - first_time;
         averaged_values.push_back(averaged_value);
         for (size_t i = 0; i < col_num; i++) {
@@ -211,7 +218,8 @@ int main(int argc, char ** argv) {
     file_out.close();
 
     file_out.open(file.substr(0, file.size() - 4) + "_ave.plt");
-    prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 1, "average of modulus", "t (s)", "2*osc^2/g_0 (g)", file.substr(0, file.size() - 13));
+    //prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 1, "average of modulus", "t (s)", "2*osc^2/g_0 (g)", file.substr(0, file.size() - 13));
+    prepare_gnuplot_script_1D_twoplots(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 2, col_num, col_num - 1, "average of modulus", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", file.substr(0, file.size() - 13));
   }
 
   return 0;
