@@ -250,3 +250,4 @@ ui_*.h
 *.iobj
 *.ipdb
 *.db
+/.vs
