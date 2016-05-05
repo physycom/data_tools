@@ -1,4 +1,4 @@
-[![Build Status Master](https://travis-ci.org/physycom/histograms.png?branch=master)](https://travis-ci.org/physycom/data_tools "master")
+[![Build Status Master](https://travis-ci.org/physycom/data_tools.png?branch=master)](https://travis-ci.org/physycom/data_tools "master")
 
 
 ### Installation
