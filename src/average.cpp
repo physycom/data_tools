@@ -161,7 +161,7 @@ int main(int argc, char ** argv) {
     double average_ax = Calculate_average(doubled_file, 2);
     double average_ay = Calculate_average(doubled_file, 3);
     double average_az = Calculate_average(doubled_file, 4);
-    double forzante = std::stod(file.substr(file.size() - 17, 3));
+    double driving    = std::stod(file.substr(file.size() - 17, 3));
 
     std::vector<double> averaged_value;
     std::vector< std::vector<double> > averaged_values;
@@ -176,7 +176,7 @@ int main(int argc, char ** argv) {
       if (start_time < 0.0) start_time = first_time = line[0];
 
       if (col_num == 0) {
-        col_num = line.size() + 3; // squared average, number of rows used in the average (useful when requesting average per period) and timestamp, but starting from zero for the first row
+        col_num = line.size() + 3; // 3 added column : squared average, number of rows used in the average (useful when requesting average per period) and relative timestamps
         averaged_value.resize(col_num);
         for (size_t i = 0; i < col_num; i++) {
           averaged_value[i] = 0.0;
@@ -187,7 +187,7 @@ int main(int argc, char ** argv) {
         averaged_value[i] += line[i];
       }
       //averaged_value[col_num - 3] += (line[2] - average_ax) * (line[2] - average_ax) + (line[3] - average_ay) * (line[3] - average_ay) + (line[4] - average_az) * (line[4] - average_az);
-      averaged_value[col_num - 3] += (line[2] - average_ax) / forzante * (line[2] - average_ax) / forzante + (line[3] - average_ay) / forzante * (line[3] - average_ay) / forzante + (line[4] - average_az) / forzante * (line[4] - average_az) / forzante;
+      averaged_value[col_num - 3] += (line[2] - average_ax) / driving * (line[2] - average_ax) / driving + (line[3] - average_ay) / driving * (line[3] - average_ay) / driving + (line[4] - average_az) / driving * (line[4] - average_az) / driving;
 
       if (line[0] - start_time > period) {
         start_time = line[0];
@@ -208,7 +208,8 @@ int main(int argc, char ** argv) {
 
     std::cout << "Report \"" << file << "\" : lines " << line_cnt << " averaged " << averaged_values.size() << std::endl;
 
-    std::ofstream file_out(file.substr(0, file.size() - 4) + "_ave.txt");
+    std::string ave_data_name = file.substr(0, file.size() - 4) + "_ave.txt";
+    std::ofstream file_out(ave_data_name);
     for (auto av : averaged_values) {
       for (auto value : av) {
         file_out << std::fixed << std::setprecision(4) << value << "\t";
@@ -217,9 +218,14 @@ int main(int argc, char ** argv) {
     }
     file_out.close();
 
-    file_out.open(file.substr(0, file.size() - 4) + "_ave.plt");
+    std::string plot_script_name = file.substr(0, file.size() - 4) + "_ave.plt",
+      plot_image_name = file.substr(0, file.size() - 4) + "_ave.png",
+      test_name = file.substr(0, file.size() - 13);
+    
+    file_out.open(plot_script_name);
     //prepare_gnuplot_script_1D(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 1, "average of modulus", "t (s)", "2*osc^2/g_0 (g)", file.substr(0, file.size() - 13));
-    prepare_gnuplot_script_1D_twoplots(file_out, file.substr(0, file.size() - 4) + "_ave.txt", file.substr(0, file.size() - 4) + "_ave.png", 1280, 720, 20, col_num, col_num - 2, col_num, col_num - 1, "average of modulus", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", file.substr(0, file.size() - 13));
+    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 20, col_num, col_num - 2, col_num, col_num - 1, "average of magnitude", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", test_name);
+    file_out.close();
   }
 
   return 0;
