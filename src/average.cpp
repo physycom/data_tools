@@ -167,7 +167,16 @@ int main(int argc, char ** argv) {
     double average_ax = Calculate_average(doubled_file, 2);
     double average_ay = Calculate_average(doubled_file, 3);
     double average_az = Calculate_average(doubled_file, 4);
-    double driving    = std::stod(file.substr(file.size() - 17, 3));
+    double normalization = 2.0;
+    double driving;
+    try {
+      driving = std::stod(file.substr(file.size() - 17, 3));
+    }
+    catch (std::exception &e) {
+      normalization = 1.0;
+      driving = 1.0;
+      std::cout << "EXCEPTION THROWN: " << e.what() << "\nThe file name does not respect average.exe standard. Removing normalization" << std::endl;
+    }
 
     std::vector<double> averaged_value;
     std::vector< std::vector<double> > averaged_values;
@@ -201,7 +210,7 @@ int main(int argc, char ** argv) {
           averaged_value[i] /= period_cnt;
         }
         //averaged_value[col_num - 3] *= (2.0 / driving);
-        averaged_value[col_num - 3] *= 2.0;
+        averaged_value[col_num - 3] *= normalization;
         averaged_value[col_num - 2] = (double)period_cnt;
         averaged_value[col_num - 1] = averaged_value[0] - first_time;
         averaged_values.push_back(averaged_value);
