@@ -170,13 +170,16 @@ int main(int argc, char ** argv) {
     double normalization = 2.0;
     double driving;
     try {
-      driving = std::stod(file.substr(file.size() - 17, 3));
+      size_t start_pos = file.find("--");
+      size_t end_pos = file.find("g", start_pos);
+      driving = std::stod(file.substr(start_pos+2, file.size() - end_pos-1));
     }
     catch (std::exception &e) {
       normalization = 1.0;
       driving = 1.0;
       std::cout << "EXCEPTION THROWN: " << e.what() << "\nThe file name does not respect average.exe standard. Removing normalization" << std::endl;
     }
+
 
     std::vector<double> averaged_value;
     std::vector< std::vector<double> > averaged_values;
