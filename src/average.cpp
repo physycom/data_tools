@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 4
+#define MINOR_VERSION 5
 #define SEPARATORS       " \t"
 #define COMMENTS         "#"
 
@@ -169,9 +169,11 @@ int main(int argc, char ** argv) {
     double average_az = Calculate_average(doubled_file, 4);
     double normalization = 2.0;
     double driving;
+    size_t start_pos = 0;
+    size_t end_pos = 0;
     try {
-      size_t start_pos = file.find("--");
-      size_t end_pos = file.find("g", start_pos);
+      start_pos = file.find("--");
+      end_pos = file.find("g", start_pos);
       driving = std::stod(file.substr(start_pos+2, file.size() - end_pos-1));
     }
     catch (std::exception &e) {
