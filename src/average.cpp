@@ -125,7 +125,7 @@ double Calculate_average(std::vector< std::vector<double> > doubled_file, size_t
 
 void usage(char * progname) {
   std::cout << "Usage: " << progname << " -period <time_interval_to_average[s]> -file filename1 -file filename2 ..." << std::endl;
-  std::cout << "or     " << progname << " -samples <number_of_lines_to_average> -file filename1 -file filename2 ..." << std::endl;
+  std::cout << "If not defined, period by default is 1.0 s." << std::endl;
   std::cout << "It is assumed that the first column represents timestamps. The second, third and fourth columns" << std::endl;
   std::cout << "will be averaged if not specified with -ave i -ave j -ave k, repeating the -ave command as many times" << std::endl;
   std::cout << "as necessary" << std::endl;
@@ -137,19 +137,15 @@ int main(int argc, char ** argv) {
 
   std::vector<std::string> input_files;
   std::vector<size_t> columns_to_be_averaged;
-  double period;
-  int samples;
+  double period = 1.0;
 
-  if (argc < 5) {
+  if (argc < 3) {
     usage(argv[0]);
   }
 
   for (int i = 1; i < argc; i++) {
     if (std::string(argv[i]) == "-period") {
       period = atof(argv[++i]);
-    }
-    else if (std::string(argv[i]) == "-samples") {
-      samples = atoi(argv[++i]);
     }
     else if (std::string(argv[i]) == "-ave") {
       columns_to_be_averaged.push_back(atoll(argv[++i]) - 1);
@@ -174,11 +170,6 @@ int main(int argc, char ** argv) {
   std::cout << std::endl;
 
   for (auto file : input_files) {
-    // Steps:
-    // 1 - remove the GLOBAL average from each component of acc
-    // 2 - evaluate L = (ax -<ax>)^2 + (ay -<ay>)^2 + (az -<az>)^2
-    // 3 - average L over the user-defined period/samples
-    // 4 - rescale the averaged <L>
     std::vector< std::vector<std::string> > parsed_file = Parse_file(file, SEPARATORS, COMMENTS);
     std::vector< std::vector<double> > doubled_file = Convert_to_double_vector(parsed_file);
 
