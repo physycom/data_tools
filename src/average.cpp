@@ -28,41 +28,63 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/algorithm/string.hpp>
 
 
-#define MAJOR_VERSION 2
-#define MINOR_VERSION 0
+#define MAJOR_VERSION    2
+#define MINOR_VERSION    1
 #define SEPARATORS       " \t"
 #define COMMENTS         "#"
 
 
 void prepare_gnuplot_script_1D_twoplots(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x1, size_t y1, size_t x2, size_t y2, std::string plot1_key, std::string plot2_key, std::string x1_key, std::string y1_key, std::string x2_key, std::string y2_key, std::string title_key) {
-  output_file << "#!/gnuplot\n";
-  output_file << "FILE_IN='" << data_file << "'\n";
-  output_file << "FILE_OUT='" << plot_file << "'\n";
-  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
-  output_file << "set output FILE_OUT\n";
-  output_file << "set title '" << title_key << "'\n";
-  output_file << "set xlabel '" << x1_key << "'\n";
-  output_file << "set ylabel '" << y1_key << "'\n";
-  output_file << "set x2label '" << x2_key << "'\n";
-  output_file << "set y2label '" << y2_key << "'\n";
-  output_file << "set ytics nomirror\n";
-  output_file << "set y2tics\n";
-  output_file << "plot FILE_IN u " << x1 << ":" << y1 << " w lines lt 1 lc rgb 'blue' lw 3 t '" << plot1_key << "' axes x1y1,\\" << std::endl;
-  output_file << "     FILE_IN u " << x2 << ":" << y2 << " w lines lt 1 lc rgb 'red' lw 3 t '" << plot2_key << "' axes x1y2\n";
-  output_file << "\n";
+  output_file << R"(#!/gnuplot
+FILE_IN=')" << data_file << R"('
+FILE_OUT=')" << plot_file << R"('
+set terminal pngcairo dashed size )" << Xres << "," << Yres << " enhanced font 'Verdana," << fontsize << R"('
+set output FILE_OUT
+# Styles
+linew = 1.2
+set style line  21 lc rgb '#0072bd' lt 7 lw linew  # blue
+set style line  22 lc rgb '#d95319' lt 7 lw linew  # orange
+set style line  23 lc rgb '#77ac30' lt 7 lw linew  # green
+set style line  24 lc rgb '#a2142f' lt 7 lw linew  # red
+set style line 102 lc rgb '#d6d7d9' lt 1 lw 1      # gray
+# Grid
+set grid xtics ytics back ls 102
+# Titles
+set key opaque
+set title 'Power Spectrum: )" << title_key << R"('
+set xlabel ')" << x1_key << R"('
+set ylabel ')" << y1_key << R"('
+set x2label ')" << x2_key << R"('
+set y2label ')" << y2_key << R"('
+set ytics nomirror
+set y2tics
+plot FILE_IN u )" << x1 << ":" << y1 << " w lines ls 21 t '" << plot1_key << R"(' axes x1y1,\
+     FILE_IN u )" << x2 << ":" << y2 << " w lines ls 24 t '" << plot2_key << "' axes x1y2\n";
 }
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x, size_t y, std::string x_key, std::string y_key, std::string plot_key, std::string title_key) {
-  output_file << "#!/gnuplot\n";
-  output_file << "FILE_IN='" << data_file << "'\n";
-  output_file << "FILE_OUT='" << plot_file << "'\n";
-  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
-  output_file << "set output FILE_OUT\n";
-  output_file << "set title '" << title_key << "'\n";
-  output_file << "set xlabel '" << x_key << "'\n";
-  output_file << "set ylabel '" << y_key << "'\n";
-  output_file << "plot FILE_IN u " << x << ":" << y << " w lines lt 1 lc rgb 'blue' lw 3 t '" << plot_key << "',\\" << std::endl;
-  output_file << "\n";
+  output_file << R"(#!/gnuplot
+FILE_IN=')" << data_file << R"('
+FILE_OUT=')" << plot_file << R"('
+set terminal pngcairo dashed size )" << Xres << "," << Yres << " enhanced font 'Verdana," << fontsize << R"('
+set output FILE_OUT
+# Styles
+linew = 1.2
+set style line  21 lc rgb '#0072bd' lt 7 lw linew  # blue
+set style line  22 lc rgb '#d95319' lt 7 lw linew  # orange
+set style line  23 lc rgb '#77ac30' lt 7 lw linew  # green
+set style line  24 lc rgb '#a2142f' lt 7 lw linew  # red
+set style line 102 lc rgb '#d6d7d9' lt 1 lw 1      # gray
+# Grid
+set grid xtics ytics back ls 102
+# Titles
+set key opaque
+set title 'Power Spectrum: )" << title_key << R"('
+set xlabel ')" << x_key << R"('
+set ylabel ')" << y_key << R"('
+set ytics nomirror
+set y2tics
+plot FILE_IN u )" << x << ":" << y << " w lines ls 21 t '" << plot_key << std::endl;
 }
 
 bool Belongs_to(char c, std::string s) {
@@ -100,7 +122,6 @@ std::vector< std::vector<std::string> > Parse_file(std::string file_name, std::s
     boost::algorithm::trim(line);  // remove leading/trailing spaces
     if (Belongs_to(line[0], comment) || !line.size()) continue;
     boost::algorithm::split(tokens, line, boost::algorithm::is_any_of(separators), boost::token_compress_on);
-    //std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
     for (size_t i = 0; i < tokens.size(); i++) {  // remove inline comments
       if (Belongs_to(tokens[i][0], comment)) { tokens.erase(tokens.begin() + i, tokens.end()); }
     }
@@ -245,10 +266,11 @@ int main(int argc, char ** argv) {
 
     std::string plot_script_name = file.substr(0, file.size() - 4) + "_ave.plt",
       plot_image_name = file.substr(0, file.size() - 4) + "_ave.png",
-      test_name = file.substr(0, file.size() - 4);
+      test_name = file.substr(0, file.size() - 4),
+      escaped_filename = boost::replace_all_copy(file, "_", "\\_");
 
     file_out.open(plot_script_name);
-    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 20, doubled_file.front().size() + 3, doubled_file.front().size() + 1, doubled_file.front().size() + 3, doubled_file.front().size() + 2, "average of magnitude", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", test_name);
+    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, doubled_file.front().size() + 3, doubled_file.front().size() + 2, "average of magnitude", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", escaped_filename);
     file_out.close();
   }
 
