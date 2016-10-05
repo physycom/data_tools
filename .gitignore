@@ -251,3 +251,4 @@ ui_*.h
 *.ipdb
 *.db
 /.vs
+*.txt

@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 4
+#define MINOR_VERSION 5
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
   output_file << "#!/gnuplot\n";
@@ -255,7 +255,31 @@ void usage(char* progname) {
   // Usage
   std::cout << std::endl << "\tUsage:\t" << progname << " -i [input_file.txt] -p [conf.json]" << std::endl << std::endl;
   std::cout << "This tool creates 1D or 2D histograms on input data, based on parameters given in a json config file" << std::endl;
-  exit(1);
+}
+
+void json_example() {
+  std::cout << R"(
+  {
+      "col_acc_x" : 1,
+      "col_acc_y" : 2,
+      "col_acc_z" : 3,
+      "col_speed" : 4,
+      "nbin_x" : 100,
+      "nbin_y" : 100,
+      "nbin_magn" : 100,
+      "nbin_angle" : 36,
+      "min_acc_x" : 0.0,
+      "max_acc_x" : 1.0,
+      "min_acc_y" : 0.0,
+      "max_acc_y" : 1.0,
+      "min_acc" : 0.0,
+      "max_acc" : 1.0,
+      "min_acc_filter" : 0.0,
+      "max_acc_filter" : 1.0,
+      "min_speed_filter" : 0.0,
+      "max_speed_filter" : 1.0
+  }
+  )" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -264,8 +288,11 @@ int main(int argc, char** argv) {
   std::string parameter_file_name;
   if (argc == 2) parameter_file_name = argv[1];
   else {
-    std::cout << "ERROR: No flags specified. Read usage and relaunch properly." << std::endl;
+    std::cerr << "ERROR: No flags specified. Read usage and relaunch properly." << std::endl;
     usage(argv[0]);
+    std::cout << "json example file:" << std::endl;
+    json_example();
+    exit(1);
   }
 
   std::string input_file_name, output_file_histox_name, output_file_histoy_name, output_file_cart_name, output_file_polar_name, output_gnuplot_file_cart_name, output_gnuplot_file_polar_name, output_gnuplot_file_polar_name_exp, output_gnuplot_file_histoxy_name,
@@ -277,17 +304,17 @@ int main(int argc, char** argv) {
 
   if (parameter_file_name.size() > 5) {
     if (parameter_file_name.substr(parameter_file_name.size() - 5, 5) != ".json") {
-      std::cout << parameter_file_name << " is not a valid .json file. Quitting..." << std::endl;
+      std::cerr << parameter_file_name << " is not a valid .json file. Quitting..." << std::endl;
       exit(2);
     }
   }
   else {
-    std::cout << parameter_file_name << " is not a valid .json file. Quitting..." << std::endl;
+    std::cerr << parameter_file_name << " is not a valid .json file. Quitting..." << std::endl;
     exit(22);
   }
   input_file.open(parameter_file_name.c_str());
   if (!input_file.is_open()) {
-    std::cout << "FAILED: Input file " << parameter_file_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Input file " << parameter_file_name << " could not be opened. Quitting..." << std::endl;
     exit(222);
   }
   else { std::cout << "SUCCESS: file " << parameter_file_name << " opened!\n"; }
@@ -304,7 +331,7 @@ int main(int argc, char** argv) {
   input_file_name = parameters.has_member("input_file_name") ? parameters["input_file_name"].as<std::string>() : "acc.txt";
   input_file.open(input_file_name.c_str());
   if (!input_file.is_open()) {
-    std::cout << "FAILED: Input file " << input_file_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Input file " << input_file_name << " could not be opened. Quitting..." << std::endl;
     exit(222);
   }
   else { std::cout << "SUCCESS: file " << input_file_name << " opened!\n"; }
@@ -317,7 +344,7 @@ int main(int argc, char** argv) {
   output_file_histox_name = parameters.has_member("output_file_histox") ? parameters["output_file_histox"].as<std::string>() : "histox_bin.txt";
   output_file_histox.open(output_file_histox_name.c_str());
   if (!output_file_histox.is_open()) {
-    std::cout << "FAILED: Output file " << output_file_histox_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_file_histox_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_file_histox_name << " opened!" << std::endl; }
@@ -325,7 +352,7 @@ int main(int argc, char** argv) {
   output_gnuplot_file_histox_name = parameters.has_member("output_gnuplot_file_histox") ? parameters["output_gnuplot_file_histox"].as<std::string>() : "histox_bin.plt";
   output_gnuplot_file_histox.open(output_gnuplot_file_histox_name.c_str());
   if (!output_gnuplot_file_histox.is_open()) {
-    std::cout << "FAILED: Output file " << output_gnuplot_file_histox_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_gnuplot_file_histox_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_histox_name << " opened!" << std::endl; }
@@ -335,7 +362,7 @@ int main(int argc, char** argv) {
   output_file_histoy_name = parameters.has_member("output_file_histoy") ? parameters["output_file_histoy"].as<std::string>() : "histoy_bin.txt";
   output_file_histoy.open(output_file_histoy_name.c_str());
   if (!output_file_histoy.is_open()) {
-    std::cout << "FAILED: Output file " << output_file_histoy_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_file_histoy_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_file_histoy_name << " opened!" << std::endl; }
@@ -343,7 +370,7 @@ int main(int argc, char** argv) {
   output_gnuplot_file_histoy_name = parameters.has_member("output_gnuplot_file_histoy") ? parameters["output_gnuplot_file_histoy"].as<std::string>() : "histoy_bin.plt";
   output_gnuplot_file_histoy.open(output_gnuplot_file_histoy_name.c_str());
   if (!output_gnuplot_file_histoy.is_open()) {
-    std::cout << "FAILED: Output file " << output_gnuplot_file_histoy_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_gnuplot_file_histoy_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_histoy_name << " opened!" << std::endl; }
@@ -353,7 +380,7 @@ int main(int argc, char** argv) {
   output_gnuplot_file_histoxy_name = parameters.has_member("output_gnuplot_file_histoxy") ? parameters["output_gnuplot_file_histoxy"].as<std::string>() : "histoxy_bin.plt";
   output_gnuplot_file_histoxy.open(output_gnuplot_file_histoxy_name.c_str());
   if (!output_gnuplot_file_histoxy.is_open()) {
-    std::cout << "FAILED: Output file " << output_gnuplot_file_histoxy_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_gnuplot_file_histoxy_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_histoxy_name << " opened!" << std::endl; }
@@ -363,7 +390,7 @@ int main(int argc, char** argv) {
   output_file_cart_name = parameters.has_member("output_file_cart") ? parameters["output_file_cart"].as<std::string>() : "cart_bin.txt";
   output_file_cart.open(output_file_cart_name.c_str());
   if (!output_file_cart.is_open()) {
-    std::cout << "FAILED: Output file " << output_file_cart_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_file_cart_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_file_cart_name << " opened!" << std::endl; }
@@ -371,7 +398,7 @@ int main(int argc, char** argv) {
   output_gnuplot_file_cart_name = parameters.has_member("output_gnuplot_file_cart") ? parameters["output_gnuplot_file_cart"].as<std::string>() : "cart_bin.plt";
   output_gnuplot_file_cart.open(output_gnuplot_file_cart_name.c_str());
   if (!output_gnuplot_file_cart.is_open()) {
-    std::cout << "FAILED: Output file " << output_gnuplot_file_cart_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_gnuplot_file_cart_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_cart_name << " opened!" << std::endl; }
@@ -381,7 +408,7 @@ int main(int argc, char** argv) {
   output_file_polar_name = parameters.has_member("output_file_polar") ? parameters["output_file_polar"].as<std::string>() : "polar_bin.txt";
   output_file_polar.open(output_file_polar_name.c_str());
   if (!output_file_polar.is_open()) {
-    std::cout << "FAILED: Output file " << output_file_polar_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_file_polar_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_file_polar_name << " opened!" << std::endl; }
@@ -389,7 +416,7 @@ int main(int argc, char** argv) {
   output_gnuplot_file_polar_name = parameters.has_member("output_gnuplot_file_polar") ? parameters["output_gnuplot_file_polar"].as<std::string>() : "polar_bin.plt";
   output_gnuplot_file_polar.open(output_gnuplot_file_polar_name.c_str());
   if (!output_gnuplot_file_polar.is_open()) {
-    std::cout << "FAILED: Output file " << output_gnuplot_file_polar_name << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_gnuplot_file_polar_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_polar_name << " opened!" << std::endl; }
@@ -399,7 +426,7 @@ int main(int argc, char** argv) {
   output_gnuplot_file_polar_name_exp = parameters.has_member("output_gnuplot_file_polar_exp") ? parameters["output_gnuplot_file_polar_exp"].as<std::string>() : "polar_bin_exp.plt";
   output_gnuplot_file_polar_exp.open(output_gnuplot_file_polar_name_exp.c_str());
   if (!output_gnuplot_file_polar_exp.is_open()) {
-    std::cout << "FAILED: Output file " << output_gnuplot_file_polar_name_exp << " could not be opened. Quitting..." << std::endl;
+    std::cerr << "FAILED: Output file " << output_gnuplot_file_polar_name_exp << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
   else { std::cout << "SUCCESS: file " << output_gnuplot_file_polar_name_exp << " opened!" << std::endl; }
@@ -495,7 +522,7 @@ int main(int argc, char** argv) {
   prepare_gnuplot_script_double_1D(output_gnuplot_file_histoxy, output_file_histox_name, output_file_histoy_name, output_image_file_histoxy_name, 1280, 720, 25, 1, 2, 3, "a_x", "a_y");
 
 
-  std::cout << "Done; please run: \n$for script in $(find . -name \"*.plt\") ; do gnuplot $script ; done\nin this folder to refresh png(s)" << std::endl;
+  //std::cout << "Done; please run: \n$for script in $(find . -name \"*.plt\") ; do gnuplot $script ; done\nin this folder to refresh png(s)" << std::endl;
   output_file_histox.close(), output_file_histoy.close(), output_file_cart.close(), output_file_polar.close(), output_gnuplot_file_cart.close(), output_gnuplot_file_polar.close(), output_gnuplot_file_histox.close(), output_gnuplot_file_histoy.close();
 
   return 0;
