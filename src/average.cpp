@@ -204,7 +204,7 @@ int main(int argc, char ** argv) {
       driving = std::stod(file.substr(start_pos + 2, file.size() - end_pos - 1));
     }
     catch (std::exception &e) {
-      std::cerr << e.what() << " - the filename does not respect average.exe standard. Removing normalization" << std::endl;
+      std::cerr << "Exception " << e.what() << " - " << file << " (filename itself) does not respect average.exe standards. Work will proceed removing normalization!" << std::endl;
       normalization = 1.0;
     }
 
