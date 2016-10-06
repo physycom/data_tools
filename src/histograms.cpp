@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 5
+#define MINOR_VERSION 6
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
   output_file << "#!/gnuplot\n";
@@ -252,13 +252,12 @@ void print_histo_2D(std::ofstream &output_file, std::vector<std::vector <size_t>
 }
 
 void usage(char* progname) {
-  // Usage
-  std::cout << std::endl << "\tUsage:\t" << progname << " -i [input_file.txt] -p [conf.json]" << std::endl << std::endl;
-  std::cout << "This tool creates 1D or 2D histograms on input data, based on parameters given in a json config file" << std::endl;
+  std::cerr << "Usage: " << progname << " -i [input_file.txt] -p [conf.json]" << std::endl << std::endl;
+  std::cerr << "This tool creates 1D or 2D histograms on input data, based on parameters given in a json config file" << std::endl;
 }
 
 void json_example() {
-  std::cout << R"(
+  std::cerr << R"(
   {
       "col_acc_x" : 1,
       "col_acc_y" : 2,
@@ -283,14 +282,14 @@ void json_example() {
 }
 
 int main(int argc, char** argv) {
-  std::cout << "Histogram calculator v" << MAJOR_VERSION << "." << MINOR_VERSION << std::endl;
+  std::cout << "histogram v" << MAJOR_VERSION << "." << MINOR_VERSION << std::endl;
 
   std::string parameter_file_name;
   if (argc == 2) parameter_file_name = argv[1];
   else {
     std::cerr << "ERROR: No flags specified. Read usage and relaunch properly." << std::endl;
     usage(argv[0]);
-    std::cout << "json example file:" << std::endl;
+    std::cerr << "json example file:" << std::endl;
     json_example();
     exit(1);
   }

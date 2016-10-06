@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #define MAJOR_VERSION    2
-#define MINOR_VERSION    1
+#define MINOR_VERSION    2
 #define SEPARATORS       " \t"
 #define COMMENTS         "#"
 
@@ -111,7 +111,7 @@ std::vector< std::vector<std::string> > Parse_file(std::string file_name, std::s
   // Safe file opening
   std::ifstream file_to_parse(file_name, std::ios::in);
   if (!file_to_parse) {
-    std::cout << "Cannot open " << file_name << ". Quitting..." << std::endl;
+    std::cerr << "Cannot open " << file_name << ". Quitting..." << std::endl;
     exit(12);
   }
   // Internal variables
@@ -145,12 +145,11 @@ double Calculate_average(std::vector< std::vector<double> > doubled_file, size_t
 
 
 void usage(char * progname) {
-  std::cout << "Usage: " << progname << " -period <time_interval_to_average[s]> -file filename1 -file filename2 ..." << std::endl;
-  std::cout << "If not defined, period by default is 1.0 s." << std::endl;
-  std::cout << "It is assumed that the first column represents timestamps. The second, third and fourth columns" << std::endl;
-  std::cout << "will be averaged if not specified with -ave i -ave j -ave k, repeating the -ave command as many times" << std::endl;
-  std::cout << "as necessary" << std::endl;
-  exit(-3);
+  std::cerr << "Usage: " << progname << " -period <time_interval_to_average[s]> -file filename1 -file filename2 ..." << std::endl;
+  std::cerr << "If not defined, period by default is 1.0 s." << std::endl;
+  std::cerr << "It is assumed that the first column represents timestamps. The second, third and fourth columns" << std::endl;
+  std::cerr << "will be averaged if not specified with -ave i -ave j -ave k, repeating the -ave command as many times" << std::endl;
+  std::cerr << "as necessary" << std::endl;
 }
 
 int main(int argc, char ** argv) {
@@ -162,6 +161,7 @@ int main(int argc, char ** argv) {
 
   if (argc < 3) {
     usage(argv[0]);
+    exit(-1);
   }
 
   for (int i = 1; i < argc; i++) {
@@ -175,7 +175,7 @@ int main(int argc, char ** argv) {
       input_files.push_back(argv[++i]);
     }
     else {
-      std::cout << "Unable to understand parameter " << argv[i] << std::endl;
+      std::cerr << "Unable to understand parameter " << argv[i] << std::endl;
     }
   }
 
@@ -204,9 +204,8 @@ int main(int argc, char ** argv) {
       driving = std::stod(file.substr(start_pos + 2, file.size() - end_pos - 1));
     }
     catch (std::exception &e) {
+      std::cerr << e.what() << " - the filename does not respect average.exe standard. Removing normalization" << std::endl;
       normalization = 1.0;
-      driving = 1.0;
-      std::cout << "EXCEPTION THROWN: " << e.what() << "\nThe file name does not respect average.exe standard. Removing normalization" << std::endl;
     }
 
     std::vector<double> average_columns;
