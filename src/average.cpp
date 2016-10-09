@@ -268,7 +268,7 @@ int main(int argc, char ** argv) {
 
     file_out.open(plot_script_name);
     //prepare_gnuplot_script_1D(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, "average of normalized magnitude", "t (s)", std::to_string(normalization) + "*<A>^2_{osc}/g_0^2", escaped_filename);
-    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, doubled_file.front().size() + 3, doubled_file.front().size() + 2, "average of normalized magnitude", "acquisition frequency", "t (s)", std::to_string(normalization)+"*<A>^2_{osc}/g_0^2", "f (Hz)", escaped_filename);
+    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, doubled_file.front().size() + 3, doubled_file.front().size() + 2, "average of normalized magnitude", "acquisition frequency", "t (s)", std::to_string(normalization) + "*<A>^2_{osc}/g_0^2", "f (Hz)", escaped_filename);
     file_out.close();
   }
 
