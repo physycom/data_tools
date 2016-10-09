@@ -257,28 +257,44 @@ void usage(char* progname) {
 }
 
 void json_example() {
-  std::cerr << R"(
-  {
-      "col_acc_x" : 1,
-      "col_acc_y" : 2,
-      "col_acc_z" : 3,
-      "col_speed" : 4,
-      "nbin_x" : 100,
-      "nbin_y" : 100,
-      "nbin_magn" : 100,
-      "nbin_angle" : 36,
-      "min_acc_x" : 0.0,
-      "max_acc_x" : 1.0,
-      "min_acc_y" : 0.0,
-      "max_acc_y" : 1.0,
-      "min_acc" : 0.0,
-      "max_acc" : 1.0,
-      "min_acc_filter" : 0.0,
-      "max_acc_filter" : 1.0,
-      "min_speed_filter" : 0.0,
-      "max_speed_filter" : 1.0
-  }
-  )" << std::endl;
+  std::cerr << R"({
+  "input_file_name" : "acc.txt",
+  "output_file_histox" : "histox_bin.txt",
+  "output_gnuplot_file_histox" : "histox_bin.plt",
+  "output_image_file_histox" : "histox_bin.png",
+  "output_file_histoy" : "histoy_bin.txt",
+  "output_gnuplot_file_histoy" : "histoy_bin.plt",
+  "output_gnuplot_file_histoxy" : "histoxy_bin.plt",
+  "output_gnuplot_file_histoxy" : "histoxy_bin.plt",
+  "output_image_file_histoxy" : "histoxy_bin.png",
+  "output_file_cart" : "cart_bin.txt",
+  "output_gnuplot_file_cart" : "cart_bin.plt",
+  "output_image_file_cart" : "cart_bin.png",
+  "output_file_polar" : "polar_bin.txt",
+  "output_gnuplot_file_polar" : "polar_bin.plt",
+  "output_image_file_polar" : "polar_bin.png",
+  "output_gnuplot_file_polar_exp" : "polar_bin_exp.plt",
+  "output_image_file_polar_exp" : "polar_bin_exp.png",
+  "col_acc_x" : 1,
+  "col_acc_y" : 2,
+  "col_acc_z" : 3,
+  "col_speed" : 4,
+  "nbin_x" : 100,
+  "nbin_y" : 100,
+  "nbin_magn" : 100,
+  "nbin_angle" : 36,
+  "min_acc_x" : 0.0,
+  "max_acc_x" : 1.0,
+  "min_acc_y" : 0.0,
+  "max_acc_y" : 1.0,
+  "min_acc" : 0.0,
+  "max_acc" : 1.0,
+  "min_acc_filter" : 0.0,
+  "max_acc_filter" : 1.0,
+  "min_speed_filter" : 0.0,
+  "max_speed_filter" : 1.0
+}
+)" << std::endl;
 }
 
 int main(int argc, char** argv) {
