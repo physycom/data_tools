@@ -423,7 +423,7 @@ int main(int argc, char** argv) {
   parse_file(input_file, input_data);
   input_file.close();
 
-  input_file_basename = parameter_file_name.substr(0, parameter_file_name.size() - 4);
+  input_file_basename = input_file_name.substr(0, input_file_name.size() - 4);
 
   /* Check all output files */
   // 1D histo_x
