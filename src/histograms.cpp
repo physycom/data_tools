@@ -32,27 +32,51 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 7
+#define MINOR_VERSION 8
 
-void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key) {
+void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key, std::string title_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
-  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
+  output_file << "set terminal pngcairo dashed size " << Xres << ',' << Yres << " enhanced font 'Verdana," << fontsize << "'\n";
   output_file << "set output FILE_OUT\n";
+  output_file << "# Styles\n";
+  output_file << "linew = 1.2\n";
+  output_file << "set style line  21 lc rgb '#0072bd' lt 7 lw linew  # blue\n";
+  output_file << "set style line  22 lc rgb '#d95319' lt 7 lw linew  # orange\n";
+  output_file << "set style line  23 lc rgb '#77ac30' lt 7 lw linew  # green\n";
+  output_file << "set style line  24 lc rgb '#a2142f' lt 7 lw linew  # red\n";
+  output_file << "set style line 102 lc rgb '#d6d7d9' lt 1 lw 1      # gray\n";
+  output_file << "# Grid\n";
+  output_file << "set grid xtics ytics back ls 102\n";
+  output_file << "# Titles\n";
+  output_file << "set key opaque\n";
+  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set ylabel 'dN/da'\n";
   output_file << "plot FILE_IN u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key << "'\n";
   output_file << "\n";
 }
 
-void prepare_gnuplot_script_double_1D(std::ofstream &output_file, std::string data_file_1, std::string data_file_2, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key_1, std::string data_key_2) {
+void prepare_gnuplot_script_double_1D(std::ofstream &output_file, std::string data_file_1, std::string data_file_2, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key_1, std::string data_key_2, std::string title_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN_1='" << data_file_1 << "'\n";
   output_file << "FILE_IN_2='" << data_file_2 << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
-  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
+  output_file << "set terminal pngcairo dashed size " << Xres << ',' << Yres << " enhanced font 'Verdana," << fontsize << "'\n";
   output_file << "set output FILE_OUT\n";
+  output_file << "# Styles\n";
+  output_file << "linew = 1.2\n";
+  output_file << "set style line  21 lc rgb '#0072bd' lt 7 lw linew  # blue\n";
+  output_file << "set style line  22 lc rgb '#d95319' lt 7 lw linew  # orange\n";
+  output_file << "set style line  23 lc rgb '#77ac30' lt 7 lw linew  # green\n";
+  output_file << "set style line  24 lc rgb '#a2142f' lt 7 lw linew  # red\n";
+  output_file << "set style line 102 lc rgb '#d6d7d9' lt 1 lw 1      # gray\n";
+  output_file << "# Grid\n";
+  output_file << "set grid xtics ytics back ls 102\n";
+  output_file << "# Titles\n";
+  output_file << "set key opaque\n";
+  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set ylabel 'dN/da'\n";
   output_file << "plot FILE_IN_1 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key_1 << "', \\\n";
@@ -60,12 +84,24 @@ void prepare_gnuplot_script_double_1D(std::ofstream &output_file, std::string da
   output_file << "\n";
 }
 
-void prepare_gnuplot_script_cart_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col, double xmin, double xmax, double ymin, double ymax, bool enable_ratio) {
+void prepare_gnuplot_script_cart_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col, double xmin, double xmax, double ymin, double ymax, bool enable_ratio, std::string title_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
-  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
+  output_file << "set terminal pngcairo dashed size " << Xres << ',' << Yres << " enhanced font 'Verdana," << fontsize << "'\n";
   output_file << "set output FILE_OUT\n";
+  output_file << "# Styles\n";
+  output_file << "linew = 1.2\n";
+  output_file << "set style line  21 lc rgb '#0072bd' lt 7 lw linew  # blue\n";
+  output_file << "set style line  22 lc rgb '#d95319' lt 7 lw linew  # orange\n";
+  output_file << "set style line  23 lc rgb '#77ac30' lt 7 lw linew  # green\n";
+  output_file << "set style line  24 lc rgb '#a2142f' lt 7 lw linew  # red\n";
+  output_file << "set style line 102 lc rgb '#d6d7d9' lt 1 lw 1      # gray\n";
+  output_file << "# Grid\n";
+  output_file << "set grid xtics ytics back ls 102\n";
+  output_file << "# Titles\n";
+  output_file << "set key opaque\n";
+  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
   output_file << "set xlabel 'a_x (g)' \n";
   output_file << "set ylabel 'a_y (g)' \n";
   output_file << "set xrange[" << xmin << ':' << xmax << "] \n";
@@ -77,12 +113,24 @@ void prepare_gnuplot_script_cart_2D(std::ofstream &output_file, std::string data
   output_file << "\n";
 }
 
-void prepare_gnuplot_script_polar_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col, double rmin, double rmax) {
+void prepare_gnuplot_script_polar_2D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_x_col, size_t max_bin_x_col, size_t min_bin_y_col, size_t max_bin_y_col, size_t data_col, double rmin, double rmax, std::string title_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
   output_file << "FILE_OUT='" << plot_file << "'\n";
-  output_file << "set terminal pngcairo size " << Xres << ',' << Yres << " font \"," << fontsize << "\"\n";
+  output_file << "set terminal pngcairo dashed size " << Xres << ',' << Yres << " enhanced font 'Verdana," << fontsize << "'\n";
   output_file << "set output FILE_OUT\n";
+  output_file << "# Styles\n";
+  output_file << "linew = 1.2\n";
+  output_file << "set style line  21 lc rgb '#0072bd' lt 7 lw linew  # blue\n";
+  output_file << "set style line  22 lc rgb '#d95319' lt 7 lw linew  # orange\n";
+  output_file << "set style line  23 lc rgb '#77ac30' lt 7 lw linew  # green\n";
+  output_file << "set style line  24 lc rgb '#a2142f' lt 7 lw linew  # red\n";
+  output_file << "set style line 102 lc rgb '#d6d7d9' lt 1 lw 1      # gray\n";
+  output_file << "# Grid\n";
+  output_file << "set grid xtics ytics back ls 102\n";
+  output_file << "# Titles\n";
+  output_file << "set key opaque\n";
+  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set rrange[" << rmin << ':' << rmax << "] \n";
   output_file << "set palette rgbformulae 22,13,10\n";
@@ -542,22 +590,45 @@ int main(int argc, char** argv) {
   std::vector<std::vector<size_t>> binned_polar_data(nbin_angle, std::vector<size_t>(nbin_magn));
   bin_data_cart_2D(input_data, col_acc_x, col_acc_y, min_acc_x, max_acc_x, min_acc_y, max_acc_y, binned_cart_data);
   bin_data_polar_2D(input_data, col_acc_x, col_acc_y, min_acc, max_acc, 0, 360, binned_polar_data);
+
+  std::string title_key, escaped_title_key;
+
   print_histo_2D(output_file_cart, binned_cart_data, min_acc_x, min_acc_y, (max_acc_x - min_acc_x) / (nbin_x - 2), (max_acc_y - min_acc_y) / (nbin_y - 2));
   print_histo_2D(output_file_polar, binned_polar_data, 0, min_acc, 360.0 / double(nbin_angle - 2), (max_acc - min_acc) / (nbin_magn - 2));
-  prepare_gnuplot_script_cart_2D(output_gnuplot_file_cart, output_file_cart_name, output_image_file_cart_name, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y, true);
-  prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, 1280, 960, 25, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false);
-  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc, max_acc);
+
+  title_key = "a_x vs a_y (cartesian): " + output_file_cart_name;
+  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+  prepare_gnuplot_script_cart_2D(output_gnuplot_file_cart, output_file_cart_name, output_image_file_cart_name, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y, true, escaped_title_key);
+
+  title_key = "a_x vs a_y (polar): " + output_file_polar_name;
+  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+  prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, 1280, 960, 25, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false, escaped_title_key);
+
+  title_key = "a_x vs a_y (polar_exp): " + output_file_polar_name;
+  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc, max_acc, escaped_title_key);
 
   /* 1D analysis */
   std::vector<size_t> binned_histox_data(nbin_x);
   std::vector<size_t> binned_histoy_data(nbin_x);
+
+
   bin_data_1D(input_data, col_acc_x, min_acc_x, max_acc_x, binned_histox_data);
   bin_data_1D(input_data, col_acc_y, min_acc_y, max_acc_y, binned_histoy_data);
   print_histo_1D(output_file_histox, binned_histox_data, min_acc_x, (max_acc_x - min_acc_x) / (nbin_x - 2));
   print_histo_1D(output_file_histoy, binned_histoy_data, min_acc_y, (max_acc_y - min_acc_y) / (nbin_y - 2));
-  prepare_gnuplot_script_1D(output_gnuplot_file_histox, output_file_histox_name, output_image_file_histox_name, 1280, 720, 25, 1, 2, 3, "a_x");
-  prepare_gnuplot_script_1D(output_gnuplot_file_histoy, output_file_histoy_name, output_image_file_histoy_name, 1280, 720, 25, 1, 2, 3, "a_y");
-  prepare_gnuplot_script_double_1D(output_gnuplot_file_histoxy, output_file_histox_name, output_file_histoy_name, output_image_file_histoxy_name, 1280, 720, 25, 1, 2, 3, "a_x", "a_y");
+
+  title_key = "a_x (histogram): " + output_file_histox_name;
+  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+  prepare_gnuplot_script_1D(output_gnuplot_file_histox, output_file_histox_name, output_image_file_histox_name, 1280, 720, 25, 1, 2, 3, "a_x", escaped_title_key);
+
+  title_key = "a_y (histogram): " + output_file_histoy_name;
+  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+  prepare_gnuplot_script_1D(output_gnuplot_file_histoy, output_file_histoy_name, output_image_file_histoy_name, 1280, 720, 25, 1, 2, 3, "a_y", escaped_title_key);
+
+  title_key = "a_x and a_y (histograms): " + output_file_histox_name + " and " + output_file_histoy_name;
+  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+  prepare_gnuplot_script_double_1D(output_gnuplot_file_histoxy, output_file_histox_name, output_file_histoy_name, output_image_file_histoxy_name, 1280, 720, 25, 1, 2, 3, "a_x", "a_y", escaped_title_key);
 
 
   //std::cout << "Done; please run: \n$for script in $(find . -name \"*.plt\") ; do gnuplot $script ; done\nin this folder to refresh png(s)" << std::endl;

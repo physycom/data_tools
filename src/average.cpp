@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
-#define _USE_MATH_DEFINES
 
 #include <iostream>
 #include <iomanip>
@@ -34,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define COMMENTS         "#"
 
 
-void prepare_gnuplot_script_1D_twoplots(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x1, size_t y1, size_t x2, size_t y2, std::string plot1_key, std::string plot2_key, std::string x1_key, std::string y1_key, std::string x2_key, std::string y2_key, std::string title_key) {
+void prepare_gnuplot_script_1D_twoplots(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t x1, size_t y1, size_t x2, size_t y2, std::string plot1_key, std::string plot2_key, std::string x1_key, std::string y1_key, std::string y2_key, std::string title_key) {
   output_file << R"(#!/gnuplot
 FILE_IN=')" << data_file << R"('
 FILE_OUT=')" << plot_file << R"('
@@ -54,7 +53,6 @@ set key opaque
 set title 'Power Spectrum: )" << title_key << R"('
 set xlabel ')" << x1_key << R"('
 set ylabel ')" << y1_key << R"('
-set x2label ')" << x2_key << R"('
 set y2label ')" << y2_key << R"('
 set ytics nomirror
 set y2tics
@@ -269,7 +267,8 @@ int main(int argc, char ** argv) {
       escaped_filename = boost::replace_all_copy(file, "_", "\\_");
 
     file_out.open(plot_script_name);
-    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, doubled_file.front().size() + 3, doubled_file.front().size() + 2, "average of magnitude", "acquisition frequency", "t (s)", "2*osc^2/g_0 (g)", "t (s)", "f (Hz)", escaped_filename);
+    //prepare_gnuplot_script_1D(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, "average of normalized magnitude", "t (s)", std::to_string(normalization) + "*<A>^2_{osc}/g_0^2", escaped_filename);
+    prepare_gnuplot_script_1D_twoplots(file_out, ave_data_name, plot_image_name, 1280, 720, 10, doubled_file.front().size() + 3, doubled_file.front().size() + 1, doubled_file.front().size() + 3, doubled_file.front().size() + 2, "average of normalized magnitude", "acquisition frequency", "t (s)", std::to_string(normalization)+"*<A>^2_{osc}/g_0^2", "f (Hz)", escaped_filename);
     file_out.close();
   }
 
