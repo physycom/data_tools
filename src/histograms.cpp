@@ -32,7 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "jsoncons/json.hpp"
 
 #define MAJOR_VERSION 2
-#define MINOR_VERSION 8
+#define MINOR_VERSION 9
+
+#define XRES     1280
+#define YRES     720
+#define FONTSIZE 10
 
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key, std::string title_key) {
   output_file << "#!/gnuplot\n";
@@ -598,15 +602,15 @@ int main(int argc, char** argv) {
 
   title_key = "a_x vs a_y (cartesian): " + output_file_cart_name;
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_cart_2D(output_gnuplot_file_cart, output_file_cart_name, output_image_file_cart_name, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y, true, escaped_title_key);
+  prepare_gnuplot_script_cart_2D(output_gnuplot_file_cart, output_file_cart_name, output_image_file_cart_name, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y, true, escaped_title_key);
 
   title_key = "a_x vs a_y (polar): " + output_file_polar_name;
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, 1280, 960, 25, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false, escaped_title_key);
+  prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false, escaped_title_key);
 
   title_key = "a_x vs a_y (polar_exp): " + output_file_polar_name;
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, 1280, 960, 25, 1, 2, 3, 4, 5, min_acc, max_acc, escaped_title_key);
+  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, min_acc, max_acc, escaped_title_key);
 
   /* 1D analysis */
   std::vector<size_t> binned_histox_data(nbin_x);
@@ -620,15 +624,15 @@ int main(int argc, char** argv) {
 
   title_key = "a_x (histogram): " + output_file_histox_name;
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_1D(output_gnuplot_file_histox, output_file_histox_name, output_image_file_histox_name, 1280, 720, 25, 1, 2, 3, "a_x", escaped_title_key);
+  prepare_gnuplot_script_1D(output_gnuplot_file_histox, output_file_histox_name, output_image_file_histox_name, XRES, YRES, FONTSIZE, 1, 2, 3, "a_x", escaped_title_key);
 
   title_key = "a_y (histogram): " + output_file_histoy_name;
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_1D(output_gnuplot_file_histoy, output_file_histoy_name, output_image_file_histoy_name, 1280, 720, 25, 1, 2, 3, "a_y", escaped_title_key);
+  prepare_gnuplot_script_1D(output_gnuplot_file_histoy, output_file_histoy_name, output_image_file_histoy_name, XRES, YRES, FONTSIZE, 1, 2, 3, "a_y", escaped_title_key);
 
   title_key = "a_x and a_y (histograms): " + output_file_histox_name + " and " + output_file_histoy_name;
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_double_1D(output_gnuplot_file_histoxy, output_file_histox_name, output_file_histoy_name, output_image_file_histoxy_name, 1280, 720, 25, 1, 2, 3, "a_x", "a_y", escaped_title_key);
+  prepare_gnuplot_script_double_1D(output_gnuplot_file_histoxy, output_file_histox_name, output_file_histoy_name, output_image_file_histoxy_name, XRES, YRES, FONTSIZE, 1, 2, 3, "a_x", "a_y", escaped_title_key);
 
 
   //std::cout << "Done; please run: \n$for script in $(find . -name \"*.plt\") ; do gnuplot $script ; done\nin this folder to refresh png(s)" << std::endl;
