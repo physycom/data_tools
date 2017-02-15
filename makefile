@@ -11,9 +11,9 @@ dirtree:
 	@mkdir -p obj
 
 clean:
-	rm -rf *.sdf bin/*.ilk bin/*.pdb obj/*.log obj/*.idb obj/*.pdb
+	rm -f bin/$(EXE1) bin/$(EXE2) obj/*
 
 cleanall:
-	rm -rf *.sdf bin obj
+	rm -rf bin obj
 
 
