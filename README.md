@@ -14,7 +14,7 @@ author: "Fabbri, Sinigardi"
 <img src="https://travis-ci.org/physycom/data_tools.svg?branch=master" width="90" height="20" alt="Build Status"> 
 </div>
 </a>
-<a href="https://ci.appveyor.com/project/cenit/list-to-json"> 
+<a href="https://ci.appveyor.com/project/cenit/data-tools"> 
 <div class="image">
 <img src="https://ci.appveyor.com/api/projects/status/cf9icu8pp70hqwip?svg=true" width="90" height="20" alt="Build Status"> 
 </div>
