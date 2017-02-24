@@ -22,13 +22,17 @@ author: "Fabbri, Sinigardi"
 
 
 ### Purpose
-This tool has been written in order to easily plot some statistics on inertial and GNSS data coming from tests developed and executed at the Physics of the City Laboratory.
+These tool have been written in order to easily calculate and plot some statistics on inertial and GNSS data, obtained during tests, developed and executed at the Physics of the City Laboratory.
 
-### Installation
-**make** and a **C++11** compatible compiler are required. Clone the repo and type ``make``, it should be enough in most cases to build the two executables!   
-There's also a **VS2015** solution avalaible.   
-Contains [jsoncons](https://github.com/danielaparker/jsoncons) as a git submodule.   
-Uses the boost C++ libraries (http://www.boost.org/).   
+#### `average`
+This tool produces an output file which has the same structure as the input one, but with values in every rows obtained averaging the input over a certain number of lines or over a time span (depending on user choice), in the latter case assuming that the timestamp is reported in the first column of the input file. User can define which columns should be averaged, if not the tool will run on columns #2, #3 and #4
+Apart from the averaging procedure, in the output file there are three added columns:
+- in the first added column, we can find the value of the cumulative squared average of the analysed columns, subtracted with their own column average;
+- in the second added column, there's the number of rows used in averaging procedures (useful to plot the frequency in case the average is done over a time span of 1 second;
+- in the third added column, there's the average relative timestamps".
+
+#### `histograms`
+This tool produces, as the name suggests, histograms, usually from inertial data. It is useful to extract particular patterns in the input data (an undocumented offset, a frozen device giving often same numbers, etc.). To run the program it is enough to give a data file on the command line, but if the user wants to define minimum and maximum values a .json configuration file like the following can be passed through the command line.
 
 json configuration example:
 ```
@@ -64,4 +68,10 @@ json configuration example:
 //  "max_acc"                     :  0.0
  }
 ```
+
+### Installation
+**make** and a **C++11** compatible compiler are required. Clone the repo and type ``make``, it should be enough in most cases to build the two executables!   
+There's also a **VS2015** solution avalaible.   
+Contains [jsoncons](https://github.com/danielaparker/jsoncons) as a git submodule.   
+Uses the boost C++ libraries (http://www.boost.org/).   
 

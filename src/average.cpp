@@ -245,10 +245,6 @@ int main(int argc, char ** argv) {
 
     std::string ave_data_name = file.substr(0, file.size() - 4) + "_ave.txt";
     std::ofstream file_out(ave_data_name);
-    file_out << "#" << "In every column there's the average value of the same column in the original file" << std::endl;
-    file_out << "#" << "First added column: squared average of the three defined columns (default 2-3-4, starting counting from 1)" << std::endl;
-    file_out << "#" << "Second added column: number of rows used in averaging procedures" << std::endl;
-    file_out << "#" << "Third added column: number of rows used in averaging procedures" << std::endl;
 
     for (auto av : averaged_values) {
       for (auto value : av) {
