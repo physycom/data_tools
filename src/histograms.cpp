@@ -311,6 +311,7 @@ void usage(char* progname) {
 void json_example() {
   std::cerr << R"({
   "input_file_name" : "inertial.txt",
+  "do_experimental_plots" : false,
   "output_file_histox" : "histox_bin.txt",
   "output_gnuplot_file_histox" : "histox_bin.plt",
   "output_image_file_histox" : "histox_bin.png",
@@ -372,14 +373,18 @@ int main(int argc, char** argv) {
 
   if (parameter_file_name.size() > 4) {
     if (parameter_file_name.substr(parameter_file_name.size() - 4, 4) != ".txt") {
-      if (parameter_file_name.size() > 5) if (parameter_file_name.substr(parameter_file_name.size() - 5, 5) != ".json") {
-        std::cerr << parameter_file_name << " is not a valid input file (not .json nor .txt). Quitting..." << std::endl;
-        usage(argv[0]);
-        std::cerr << "json example file:" << std::endl;
-        json_example();
-        exit(2);
+      if (parameter_file_name.size() > 5) {
+        if (parameter_file_name.substr(parameter_file_name.size() - 5, 5) != ".json") {
+          std::cerr << parameter_file_name << " is not a valid input file (not .json nor .txt). Quitting..." << std::endl;
+          usage(argv[0]);
+          std::cerr << "json example file:" << std::endl;
+          json_example();
+          exit(2);
+        }
+        else {
+          we_have_json_conf = true;
+        }
       }
-      else we_have_json_conf = true;
     }
     else {
       input_file_name = parameter_file_name;
@@ -402,15 +407,15 @@ int main(int argc, char** argv) {
       std::cerr << "FAILED: Parameter file " << parameter_file_name << " could not be opened. Quitting..." << std::endl;
       exit(222);
     }
-    else { std::cout << "SUCCESS: file " << parameter_file_name << " opened!\n"; }
     input_file.close();
     parameters = jsoncons::json::parse_file(parameter_file_name);
   }
 
-  size_t col_speed, col_acc_x, col_acc_y, col_acc_z, nbin_x, nbin_y, nbin_magn, nbin_angle;
+  long long int col_speed, col_acc_x, col_acc_y, col_acc_z, nbin_x, nbin_y, nbin_magn, nbin_angle;
   double min_acc_x = std::numeric_limits<double>::max(), max_acc_x = std::numeric_limits<double>::lowest(), min_acc_y = std::numeric_limits<double>::max(), max_acc_y = std::numeric_limits<double>::lowest(), min_acc = std::numeric_limits<double>::max(), max_acc = std::numeric_limits<double>::lowest();
   double min_speed_filter = 0.0, max_speed_filter = std::numeric_limits<double>::max(), min_acc_filter = 0.0, max_acc_filter = std::numeric_limits<double>::max();
   bool b_min_acc_x = false, b_max_acc_x = false, b_min_acc_y = false, b_max_acc_y = false, b_min_acc = false, b_max_acc = false;
+  bool do_experimental_plots = false;
 
   /* Parse input file */
   if (we_have_json_conf) input_file_name = parameters.has_member("input_file_name") ? parameters["input_file_name"].as<std::string>() : "inertial.txt";
@@ -419,7 +424,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Input file " << input_file_name << " could not be opened. Quitting..." << std::endl;
     exit(222);
   }
-  else { std::cout << "SUCCESS: file " << input_file_name << " opened!\n"; }
   std::vector<std::vector<double>> input_data;
   parse_file(input_file, input_data);
   input_file.close();
@@ -427,6 +431,9 @@ int main(int argc, char** argv) {
   input_file_basename = input_file_name.substr(0, input_file_name.size() - 4);
 
   /* Check all output files */
+  // check if experimental plots are enabled
+  do_experimental_plots = parameters.has_member("do_experimental_plots") ? parameters["do_experimental_plots"].as<bool>() : false;
+
   // 1D histo_x
   output_file_histox_name = parameters.has_member("output_file_histox") ? parameters["output_file_histox"].as<std::string>() : input_file_basename + "_histox_bin.txt";
   output_file_histox.open(output_file_histox_name.c_str());
@@ -434,7 +441,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_file_histox_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_file_histox_name << " opened!" << std::endl; }
 
   output_gnuplot_file_histox_name = parameters.has_member("output_gnuplot_file_histox") ? parameters["output_gnuplot_file_histox"].as<std::string>() : input_file_basename + "_histox_bin.plt";
   output_gnuplot_file_histox.open(output_gnuplot_file_histox_name.c_str());
@@ -442,7 +448,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_gnuplot_file_histox_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_gnuplot_file_histox_name << " opened!" << std::endl; }
   output_image_file_histox_name = parameters.has_member("output_image_file_histox") ? parameters["output_image_file_histox"].as<std::string>() : input_file_basename + "_histox_bin.png";
 
   // 1D histo_y
@@ -452,7 +457,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_file_histoy_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_file_histoy_name << " opened!" << std::endl; }
 
   output_gnuplot_file_histoy_name = parameters.has_member("output_gnuplot_file_histoy") ? parameters["output_gnuplot_file_histoy"].as<std::string>() : input_file_basename + "_histoy_bin.plt";
   output_gnuplot_file_histoy.open(output_gnuplot_file_histoy_name.c_str());
@@ -460,7 +464,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_gnuplot_file_histoy_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_gnuplot_file_histoy_name << " opened!" << std::endl; }
   output_image_file_histoy_name = parameters.has_member("output_image_file_histoy") ? parameters["output_image_file_histoy"].as<std::string>() : input_file_basename + "_histoy_bin.png";
 
   // 1D histo_xy
@@ -470,7 +473,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_gnuplot_file_histoxy_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_gnuplot_file_histoxy_name << " opened!" << std::endl; }
   output_image_file_histoxy_name = parameters.has_member("output_image_file_histoxy") ? parameters["output_image_file_histoxy"].as<std::string>() : input_file_basename + "_histoxy_bin.png";
 
   // 2D cart
@@ -480,7 +482,6 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_file_cart_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_file_cart_name << " opened!" << std::endl; }
 
   output_gnuplot_file_cart_name = parameters.has_member("output_gnuplot_file_cart") ? parameters["output_gnuplot_file_cart"].as<std::string>() : input_file_basename + "_cart_bin.plt";
   output_gnuplot_file_cart.open(output_gnuplot_file_cart_name.c_str());
@@ -488,37 +489,34 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: Output file " << output_gnuplot_file_cart_name << " could not be opened. Quitting..." << std::endl;
     exit(333);
   }
-  else { std::cout << "SUCCESS: file " << output_gnuplot_file_cart_name << " opened!" << std::endl; }
   output_image_file_cart_name = parameters.has_member("output_image_file_cart") ? parameters["output_image_file_cart"].as<std::string>() : input_file_basename + "_cart_bin.png";
 
-  // 2D polar
-  output_file_polar_name = parameters.has_member("output_file_polar") ? parameters["output_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.txt";
-  output_file_polar.open(output_file_polar_name.c_str());
-  if (!output_file_polar.is_open()) {
-    std::cerr << "FAILED: Output file " << output_file_polar_name << " could not be opened. Quitting..." << std::endl;
-    exit(333);
+  if (do_experimental_plots) {
+    // 2D polar
+    output_file_polar_name = parameters.has_member("output_file_polar") ? parameters["output_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.txt";
+    output_file_polar.open(output_file_polar_name.c_str());
+    if (!output_file_polar.is_open()) {
+      std::cerr << "FAILED: Output file " << output_file_polar_name << " could not be opened. Quitting..." << std::endl;
+      exit(333);
+    }
+  
+    output_gnuplot_file_polar_name = parameters.has_member("output_gnuplot_file_polar") ? parameters["output_gnuplot_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.plt";
+    output_gnuplot_file_polar.open(output_gnuplot_file_polar_name.c_str());
+    if (!output_gnuplot_file_polar.is_open()) {
+      std::cerr << "FAILED: Output file " << output_gnuplot_file_polar_name << " could not be opened. Quitting..." << std::endl;
+      exit(333);
+    }
+    output_image_file_polar_name = parameters.has_member("output_image_file_polar") ? parameters["output_image_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.png";
+  
+    // 2D polar experimental
+    output_gnuplot_file_polar_name_exp = parameters.has_member("output_gnuplot_file_polar_exp") ? parameters["output_gnuplot_file_polar_exp"].as<std::string>() : input_file_basename + "_polar_bin_exp.plt";
+    output_gnuplot_file_polar_exp.open(output_gnuplot_file_polar_name_exp.c_str());
+    if (!output_gnuplot_file_polar_exp.is_open()) {
+      std::cerr << "FAILED: Output file " << output_gnuplot_file_polar_name_exp << " could not be opened. Quitting..." << std::endl;
+      exit(333);
+    }
+    output_image_file_polar_name_exp = parameters.has_member("output_image_file_polar_exp") ? parameters["output_image_file_polar_exp"].as<std::string>() : input_file_basename + "_polar_bin_exp.png";
   }
-  else { std::cout << "SUCCESS: file " << output_file_polar_name << " opened!" << std::endl; }
-
-  output_gnuplot_file_polar_name = parameters.has_member("output_gnuplot_file_polar") ? parameters["output_gnuplot_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.plt";
-  output_gnuplot_file_polar.open(output_gnuplot_file_polar_name.c_str());
-  if (!output_gnuplot_file_polar.is_open()) {
-    std::cerr << "FAILED: Output file " << output_gnuplot_file_polar_name << " could not be opened. Quitting..." << std::endl;
-    exit(333);
-  }
-  else { std::cout << "SUCCESS: file " << output_gnuplot_file_polar_name << " opened!" << std::endl; }
-  output_image_file_polar_name = parameters.has_member("output_image_file_polar") ? parameters["output_image_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.png";
-
-  // 2D polar experimental
-  output_gnuplot_file_polar_name_exp = parameters.has_member("output_gnuplot_file_polar_exp") ? parameters["output_gnuplot_file_polar_exp"].as<std::string>() : input_file_basename + "_polar_bin_exp.plt";
-  output_gnuplot_file_polar_exp.open(output_gnuplot_file_polar_name_exp.c_str());
-  if (!output_gnuplot_file_polar_exp.is_open()) {
-    std::cerr << "FAILED: Output file " << output_gnuplot_file_polar_name_exp << " could not be opened. Quitting..." << std::endl;
-    exit(333);
-  }
-  else { std::cout << "SUCCESS: file " << output_gnuplot_file_polar_name_exp << " opened!" << std::endl; }
-  output_image_file_polar_name_exp = parameters.has_member("output_image_file_polar_exp") ? parameters["output_image_file_polar_exp"].as<std::string>() : input_file_basename + "_polar_bin_exp.png";
-
 
 
   col_acc_x = parameters.has_member("col_acc_x") ? parameters["col_acc_x"].as<size_t>() - 1 : 2;
@@ -601,14 +599,15 @@ int main(int argc, char** argv) {
   escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
   prepare_gnuplot_script_cart_2D(output_gnuplot_file_cart, output_file_cart_name, output_image_file_cart_name, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, min_acc_x, max_acc_x, min_acc_y, max_acc_y, true, escaped_title_key);
 
-  title_key = "a_x vs a_y (polar): " + output_file_polar_name;
-  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false, escaped_title_key);
+  if (do_experimental_plots) {
+    title_key = "a_x vs a_y (polar): " + output_file_polar_name;
+    escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+    prepare_gnuplot_script_cart_2D(output_gnuplot_file_polar, output_file_polar_name, output_image_file_polar_name, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, 0, 360, min_acc, max_acc, false, escaped_title_key);
 
-  title_key = "a_x vs a_y (polar_exp): " + output_file_polar_name;
-  escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
-  prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, min_acc, max_acc, escaped_title_key);
-
+    title_key = "a_x vs a_y (polar_exp): " + output_file_polar_name;
+    escaped_title_key = boost::replace_all_copy(title_key, "_", "\\_");
+    prepare_gnuplot_script_polar_2D(output_gnuplot_file_polar_exp, output_file_polar_name, output_image_file_polar_name_exp, XRES, YRES, FONTSIZE, 1, 2, 3, 4, 5, min_acc, max_acc, escaped_title_key);
+  }
   /* 1D analysis */
   std::vector<size_t> binned_histox_data(nbin_x);
   std::vector<size_t> binned_histoy_data(nbin_x);
@@ -633,8 +632,8 @@ int main(int argc, char** argv) {
 
 
   //std::cout << "Done; please run: \n$for script in $(find . -name \"*.plt\") ; do gnuplot $script ; done\nin this folder to refresh png(s)" << std::endl;
-  output_file_histox.close(), output_file_histoy.close(), output_file_cart.close(), output_file_polar.close(), output_gnuplot_file_cart.close(), output_gnuplot_file_polar.close(), output_gnuplot_file_histox.close(), output_gnuplot_file_histoy.close();
-
+  output_file_histox.close(), output_file_histoy.close(), output_file_cart.close(), output_gnuplot_file_cart.close(), output_gnuplot_file_histox.close(), output_gnuplot_file_histoy.close();
+  if (do_experimental_plots) output_file_polar.close(), output_gnuplot_file_polar.close();
   return 0;
 
 }
