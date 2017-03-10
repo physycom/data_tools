@@ -52,7 +52,7 @@ void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file
   output_file << "set grid xtics ytics back ls 102\n";
   output_file << "# Titles\n";
   output_file << "set key opaque\n";
-  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
+  output_file << "set title 'Power Spectrum: " << title_key << "\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set ylabel 'dN/da'\n";
   output_file << "plot FILE_IN u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key << "'\n";
@@ -77,7 +77,7 @@ void prepare_gnuplot_script_double_1D(std::ofstream &output_file, std::string da
   output_file << "set grid xtics ytics back ls 102\n";
   output_file << "# Titles\n";
   output_file << "set key opaque\n";
-  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
+  output_file << "set title 'Power Spectrum: " << title_key << "\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set ylabel 'dN/da'\n";
   output_file << "plot FILE_IN_1 u ($" << min_bin_col << "+$" << max_bin_col << ")/2:" << data_col << " w histeps lt 1 lc rgb 'red' lw 3 t '" << data_key_1 << "', \\\n";
@@ -102,7 +102,7 @@ void prepare_gnuplot_script_cart_2D(std::ofstream &output_file, std::string data
   output_file << "set grid xtics ytics back ls 102\n";
   output_file << "# Titles\n";
   output_file << "set key opaque\n";
-  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
+  output_file << "set title 'Power Spectrum: " << title_key << "\n";
   output_file << "set xlabel 'a_x (g)' \n";
   output_file << "set ylabel 'a_y (g)' \n";
   output_file << "set xrange[" << xmin << ':' << xmax << "] \n";
@@ -131,7 +131,7 @@ void prepare_gnuplot_script_polar_2D(std::ofstream &output_file, std::string dat
   output_file << "set grid xtics ytics back ls 102\n";
   output_file << "# Titles\n";
   output_file << "set key opaque\n";
-  output_file << "set title 'Power Spectrum: )" << title_key << "\n";
+  output_file << "set title 'Power Spectrum: " << title_key << "\n";
   output_file << "set xlabel 'a (g)' \n";
   output_file << "set rrange[" << rmin << ':' << rmax << "] \n";
   output_file << "set palette rgbformulae 22,13,10\n";
