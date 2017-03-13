@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "histograms", "histograms.vcxproj\histograms.vcxproj", "{36C9BC1D-8AF9-4209-A2BE-7BA316AD80BD}"
 EndProject
@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.travis.yml = .travis.yml
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simultaneous", "simultaneous.vcxproj\simultaneous.vcxproj", "{FF1C2170-29A1-48B4-82A3-AAF7AE071126}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,14 @@ Global
 		{3935A602-4168-4848-9284-653FD6300C32}.Release|x64.Build.0 = Release|x64
 		{3935A602-4168-4848-9284-653FD6300C32}.Release|x86.ActiveCfg = Release|Win32
 		{3935A602-4168-4848-9284-653FD6300C32}.Release|x86.Build.0 = Release|Win32
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Debug|x64.ActiveCfg = Debug|x64
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Debug|x64.Build.0 = Debug|x64
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Debug|x86.ActiveCfg = Debug|Win32
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Debug|x86.Build.0 = Debug|Win32
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Release|x64.ActiveCfg = Release|x64
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Release|x64.Build.0 = Release|x64
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Release|x86.ActiveCfg = Release|Win32
+		{FF1C2170-29A1-48B4-82A3-AAF7AE071126}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
