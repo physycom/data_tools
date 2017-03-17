@@ -29,11 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MAJOR_VERSION                       0
 #define MINOR_VERSION                       1
 #define NUMBER_OF_COLUMNS_IN_INERTIAL_FILES 10
+#define TIMESTAMP_COLUMN                    1
 #define TIMESTAMP_REL_COLUMN                10
 #define XRES                                1280
 #define YRES                                720
 #define FONTSIZE                            10
 
+double start_time;
 
 void prepare_gnuplot_script(std::ofstream &output_file, std::string output_file_png, std::vector<std::string> file_names, std::vector<std::string> device_names, size_t Xres, size_t Yres, size_t fontsize, size_t column, std::string title_key) {
   output_file << "#!/gnuplot\n";
@@ -58,19 +60,19 @@ void prepare_gnuplot_script(std::ofstream &output_file, std::string output_file_
   output_file << "# Titles\n";
   output_file << "set key opaque\n";
   output_file << "set title '" << title_key << "'\n";
-  output_file << "set xlabel 't (s)' \n";
+  output_file << "set xlabel 't_{rel} (s)' \n";
   output_file << "set ylabel '" << title_key << "'\n";
   output_file << "plot ";
   for (size_t n = 0; n < file_names.size(); n++) {
-    output_file << "FILE_IN_" << n << " u " << TIMESTAMP_REL_COLUMN << ':' << column << " w lines ls " << n + 1 << " t '" << device_names[n] << "'";
+    //output_file << "FILE_IN_" << n << " u " << TIMESTAMP_REL_COLUMN << ':' << column << " w lines ls " << n + 1 << " t '" << device_names[n] << "'";
+    output_file << "FILE_IN_" << n << " u ($" << TIMESTAMP_COLUMN << '-' << start_time << "):" << column << " w lines ls " << n + 1 << " t '" << device_names[n] << "'";
     if (n < file_names.size() - 1) output_file << ", \\\n";
   }
   output_file << "\n";
 }
 
 
-bool check_number_of_columns(std::ifstream& input_file)
-{
+bool check_number_of_columns(std::ifstream& input_file) {
   std::string line;
   std::vector<std::string> tokens;
   std::getline(input_file, line);
@@ -81,10 +83,20 @@ bool check_number_of_columns(std::ifstream& input_file)
     std::cerr << "Non conforming file, wrong number of columns, found " << tokens.size() << '/' << NUMBER_OF_COLUMNS_IN_INERTIAL_FILES << " columns." << std::endl;
     return false;
   }
+  else {
+    double time = 0;
+    try {
+      time = std::stod(tokens[TIMESTAMP_COLUMN - 1]);
+      if (time < start_time) start_time = time;
+    }
+    catch (std::exception &e) {
+      std::cout << e.what() << std::endl;
+      exit(-55);
+    }
+  }
   tokens.clear();
   return true;
 }
-
 
 
 void usage(char* progname) {
@@ -96,6 +108,7 @@ void usage(char* progname) {
 
 int main(int argc, char** argv) {
   std::cout << "simultaneous v" << MAJOR_VERSION << "." << MINOR_VERSION << std::endl;
+  start_time = 2500000000.0;
 
   if (argc < 3) {
     std::cerr << "At least two arguments are required: plt_files_basename and one inertial file is required." << std::endl;
