@@ -245,10 +245,11 @@ ui_*.h
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
-*.json
-*.ubx
 *.iobj
 *.ipdb
 *.db
-/.vs
-*.txt
+
+.vs/
+build/
+
+
