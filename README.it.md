@@ -21,7 +21,7 @@ author: "Fabbri, Sinigardi"
 </a>
 
 
-`data_tools` contiene strumenti utili per calcolare e visualizzare statistiche riassuntive riguardanti dati inerziali e di geoposizionamento, ottenuti durante i test sviluppati ed eseguiti presso il Laboratorio di Fisica della Città.
+`data_tools` contiene strumenti utili per calcolare e visualizzare statistiche riassuntive riguardanti dati inerziali e di geoposizionamento, ottenuti durante i test sviluppati ed eseguiti presso il Laboratorio di Fisica della Città.  
 
 #### Synopsis
 ```
@@ -78,9 +78,13 @@ Esempio di json per la configurazione:
 #### `simultaneous`
 Questo tool produce uno script gnuplot per sovrapporre dati simili provenienti da file diversi. È ideale, ad esempio, per generare plot dei test di trasferimento impulsivo di quantità di moto, plottando accelerazioni e rotazioni sui diversi assi e da differenti dispositivi nella stessa immagine. 
 
-### Installation
-**make** e un compilatore compatibile con lo standard **C++11** sono necessari. Per compilare gli eseguibili è sufficiente clonare la repo e digitare `make` nella cartella radice.   
-Nel repository è anche disponibile la "solution" per **VS2017**.   
+### Installazione
+**CMake** e un compilatore compatibile con lo standard **C++11** sono necessari. Per compilare gli eseguibili è sufficiente clonare la repo e digitare i seguenti comandi:  
+```
+mkdir build ; cd build ; cmake .. ; cmake --build . --target install
+```
+Tramite CMake è possibile generare anche i progetti per tutti gli IDE più diffusi.
+
 `data_tools` contiene [jsoncons](https://github.com/danielaparker/jsoncons) come sottomodulo git.   
-Utilizza le librerie boost C++ (http://www.boost.org/).   
+`data_tools` utilizza le librerie [boost](http://www.boost.org/).   
 

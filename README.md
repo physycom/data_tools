@@ -21,7 +21,7 @@ author: "Fabbri, Sinigardi"
 </a>
 
 
-`data_tools` was created to easily calculate and plot some statistics on inertial and GNSS data, obtained during tests, developed and executed at the Physics of the City Laboratory.
+`data_tools` was created to easily calculate and plot some statistics on inertial and GNSS data, obtained during tests, developed and executed at the Physics of the City Laboratory.  
 
 #### Synopsis
 ```
@@ -79,8 +79,13 @@ json configuration example:
 This tool prepares a gnuplot script to superimpose similar data from different files. It is useful, for example, to plot test results from impulse transfer tests, plotting acceleration and rotations on same axes and different devices in the same picture. 
 
 ### Installation
-**make** and a **C++11** compatible compiler are required. Clone the repo and type ``make``, it should be enough in most cases to build the executables!   
-There's also a **VS2017** solution avalaible.   
-Contains [jsoncons](https://github.com/danielaparker/jsoncons) as a git submodule.   
-Uses the boost C++ libraries (http://www.boost.org/).   
+**CMake** and a **C++11** compatible compiler are required. To build the executable, clone the repo and then type  
+```
+mkdir build ; cd build ; cmake .. ; cmake --build . --target install
+```
+With CMake you can also deploy projects for the most common IDEs.  
+
+`data_tools` contains [jsoncons](https://github.com/danielaparker/jsoncons) as a git submodule.   
+`data_tools` uses the [boost libraries](http://www.boost.org/).   
+
 
