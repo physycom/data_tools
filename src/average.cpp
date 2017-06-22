@@ -164,7 +164,7 @@ int main(int argc, char ** argv) {
       period = atof(argv[++i]);
     }
     else if (std::string(argv[i]) == "-ave") {
-      columns_to_be_averaged.push_back(atoll(argv[++i]) - 1);
+      columns_to_be_averaged.push_back(size_t(atoll(argv[++i])) - 1);
     }
     else if (std::string(argv[i]) == "-file") {
       input_files.push_back(argv[++i]);
