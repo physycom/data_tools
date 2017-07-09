@@ -29,7 +29,7 @@ install:
   - if [%COMPILER%]==[vs] vcpkg integrate install
   - if [%COMPILER%]==[vs] vcpkg install boost
   - cd ..
-  - cd C:\projects\json-packer
+  - cd C:\projects\data-tools
 
 build_script:
   - mkdir build
