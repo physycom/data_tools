@@ -81,7 +81,7 @@ Questo tool produce uno script gnuplot per sovrapporre dati simili provenienti d
 ### Installazione
 **CMake** e un compilatore compatibile con lo standard **C++11** sono necessari. Per compilare gli eseguibili è sufficiente clonare la repo e digitare i seguenti comandi:  
 ```
-mkdir build ; cd build ; cmake .. ; cmake --build . --target install
+mkdir build ; cd build ; cmake .. ; cmake --build .
 ```
 Tramite CMake è possibile generare anche i progetti per tutti gli IDE più diffusi.
 
