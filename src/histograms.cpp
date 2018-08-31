@@ -35,6 +35,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define YRES     720
 #define FONTSIZE 10
 
+#ifndef M_PI
+#define M_PI 3.14159265359
+#endif
+
 void prepare_gnuplot_script_1D(std::ofstream &output_file, std::string data_file, std::string plot_file, size_t Xres, size_t Yres, size_t fontsize, size_t min_bin_col, size_t max_bin_col, size_t data_col, std::string data_key, std::string title_key) {
   output_file << "#!/gnuplot\n";
   output_file << "FILE_IN='" << data_file << "'\n";
@@ -499,7 +503,7 @@ int main(int argc, char** argv) {
       std::cerr << "FAILED: Output file " << output_file_polar_name << " could not be opened. Quitting..." << std::endl;
       exit(333);
     }
-  
+
     output_gnuplot_file_polar_name = parameters.has_member("output_gnuplot_file_polar") ? parameters["output_gnuplot_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.plt";
     output_gnuplot_file_polar.open(output_gnuplot_file_polar_name.c_str());
     if (!output_gnuplot_file_polar.is_open()) {
@@ -507,7 +511,7 @@ int main(int argc, char** argv) {
       exit(333);
     }
     output_image_file_polar_name = parameters.has_member("output_image_file_polar") ? parameters["output_image_file_polar"].as<std::string>() : input_file_basename + "_polar_bin.png";
-  
+
     // 2D polar experimental
     output_gnuplot_file_polar_name_exp = parameters.has_member("output_gnuplot_file_polar_exp") ? parameters["output_gnuplot_file_polar_exp"].as<std::string>() : input_file_basename + "_polar_bin_exp.plt";
     output_gnuplot_file_polar_exp.open(output_gnuplot_file_polar_name_exp.c_str());
