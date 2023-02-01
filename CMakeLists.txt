@@ -20,7 +20,9 @@ else()
   message(WARNING "vcpkg not found, toolchain not defined, build might fail")
 endif()
 
-project(physycom-utils VERSION 1.0.0 LANGUAGES CXX)
+project(data-tools VERSION 1.0.0 LANGUAGES CXX)
+
+set (CMAKE_CXX_STANDARD 11)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_LIST_DIR}" CACHE PATH "Install prefix" FORCE)
