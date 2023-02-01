@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
-#include "jsoncons/json.hpp"
+#include <jsoncons/json.hpp>
 
 #define MAJOR_VERSION 2
 #define MINOR_VERSION 9
@@ -641,5 +641,3 @@ int main(int argc, char** argv) {
   return 0;
 
 }
-
-

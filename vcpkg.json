@@ -1,0 +1,11 @@
+{
+  "name": "data-tools",
+  "version": "1.0.0",
+  "homepage": "https://github.com/physycom/data_tools",
+  "description": "A collection of ready to use tools to easily calculate and plot some statistics on inertial and GNSS data",
+  "dependencies":
+  [
+    "boost-algorithm",
+    "jsoncons"
+  ]
+}
